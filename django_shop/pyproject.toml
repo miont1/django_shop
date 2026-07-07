@@ -1,0 +1,25 @@
+[tool.ruff]
+exclude = [
+    "**/migrations/*.py",
+    "config/settings.py"
+]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["F401"]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+strict_optional = true
+ignore_missing_imports = true
+allow_untyped_globals = true
+exclude = ['settings\.py']
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+pythonpath = ["."]
