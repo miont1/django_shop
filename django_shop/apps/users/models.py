@@ -24,12 +24,10 @@ class UserManager(BaseUserManager['User']):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True, verbose_name='Email')
-    phone = models.CharField(max_length=15, verbose_name='Telephone number')  # type: ignore[var-annotated]
-    address = models.CharField(max_length=255, verbose_name='Address')  # type: ignore[var-annotated]
-    city = models.CharField(max_length=30, verbose_name='City')   # type: ignore[var-annotated]
+    email: models.EmailField[str, str] = models.EmailField(unique=True, verbose_name="Email")
+    phone: models.CharField[str, str] = models.CharField(max_length=15, blank=True, null=True, verbose_name='Telephone number')
+    address: models.CharField = models.CharField(max_length=255, blank=True, null=True, verbose_name='Address')
+    city: models.CharField = models.CharField(max_length=30, blank=True, null=True, verbose_name='City')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
