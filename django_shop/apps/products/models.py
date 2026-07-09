@@ -30,7 +30,7 @@ class Product(models.Model):
     description: models.TextField[str, str] = models.TextField(blank=True, null=True)
     price: models.DecimalField[float, float] = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
     stock: models.PositiveIntegerField[int, int] = models.PositiveIntegerField(default=0)
-    categories = models.ManyToManyField(Category, related_name='products', blank=True, null=True)  # type: ignore[var-annotated]
+    categories = models.ManyToManyField(Category, related_name='products')  # type: ignore[var-annotated]
     image = models.ImageField(upload_to='products', blank=True, null=True)
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
