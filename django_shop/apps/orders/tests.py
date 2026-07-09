@@ -3,7 +3,6 @@ from decimal import Decimal
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 
 from apps.products.models import Product  # type: ignore[import-not-found]
 from apps.orders.models import Order  # type: ignore[import-not-found]

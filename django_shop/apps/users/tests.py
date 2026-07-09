@@ -2,8 +2,6 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
-# Create your tests here.
-
 User = get_user_model()
 
 @pytest.mark.django_db
