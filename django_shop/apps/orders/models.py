@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
