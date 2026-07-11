@@ -2,9 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
-from apps.products.models import Product  # type: ignore[import-not-found]
-from apps.products.models import Category # type: ignore[import-not-found]
-from apps.products.models import Review   # type: ignore[import-not-found]
+from .models import Product, Category, Review
 
 User = get_user_model()
 
