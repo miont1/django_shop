@@ -1,0 +1,2 @@
+class NotEnoughProductInStock(Exception):
+    pass

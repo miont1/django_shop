@@ -5,8 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from apps.products.models import Product  # type: ignore[import-not-found]
-from apps.orders.models import Order  # type: ignore[import-not-found]
-from apps.orders.models import OrderItem # type: ignore[import-not-found]
+from apps.orders.models import Order, OrderItem  # type: ignore[import-not-found]
 
 User = get_user_model()
 
@@ -96,5 +95,3 @@ class TestOrder:
         #not enough stock on product
         with pytest.raises(ValidationError):
             order_item.save()
-
-
