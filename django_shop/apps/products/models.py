@@ -33,6 +33,7 @@ class Product(models.Model):
     stock: models.PositiveIntegerField[int, int] = models.PositiveIntegerField(default=0)
     categories = models.ManyToManyField(Category, related_name='products')  # type: ignore[var-annotated]
     image = models.ImageField(upload_to='products', blank=True, null=True)
+    is_active: models.BooleanField[bool, bool] = models.BooleanField(default=True)
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
@@ -48,6 +49,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('products:product_detail', kwargs={'slug': self.slug})
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # type: ignore[var-annotated]

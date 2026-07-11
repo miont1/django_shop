@@ -59,3 +59,7 @@ Thumbs.db
 db.db
 Desktop.ini
 .DS_Store
+
+/django_shop/static/img/avatars/*.svg
+/django_shop/frontend-example/
+/django_shop/static/img/products/*.jpg
