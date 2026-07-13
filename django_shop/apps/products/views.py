@@ -72,4 +72,10 @@ class ProductDetailView(DetailView):
         context['reviews'] = reviews
         average_rating = reviews.aggregate(Avg("rating"))["rating__avg"]
         context['average_rating'] = round(average_rating, 2) if average_rating else 'No rating'
+        
+        # Get current quantity in cart
+        from apps.cart.cart import Cart
+        cart = Cart(self.request)
+        context['current_quantity'] = cart.cart.get(str(product.id), {}).get('quantity', 0)
+        
         return context

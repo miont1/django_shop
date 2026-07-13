@@ -22,6 +22,17 @@
                         <span class="price-tag">per unit</span>
                         <p class="product-price">${{ product.price }}</p>
                     </div>
+                    <div class="stock-section">
+                        {% if product.stock > 0 %}
+                            <span class="stock-tag">
+                                <i class="fa-solid fa-check"></i> Stock: {{ product.stock }} units available
+                            </span>
+                        {% else %}
+                            <span class="stock-tag out-of-stock">
+                                <i class="fa-solid fa-xmark"></i> Out of stock
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="product-description">
                     {% if product.description %}
@@ -31,7 +42,7 @@
                     {% endif %}
                 </div>
                 <!-- Container for managing the cart (hooks up with main.js script) -->
-                <div class="cart-controls">
+                <div class="cart-controls" data-product-id="{{ product.id }}" data-initial-qty="{{ current_quantity }}" data-stock="{{ product.stock }}">
                     <!-- Add to Cart button (visible by default) -->
                     <button class="button button--primary add-to-cart-button" id="add-to-cart-btn" {% if product.stock == 0 %}disabled style="opacity:0.6;"{% endif %}>
                         <i class="fa-solid fa-cart-shopping"></i>

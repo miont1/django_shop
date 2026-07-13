@@ -906,6 +906,33 @@ body.user-logged-in .header__user-actions {
     color: var(--black-main);
 }
 
+.stock-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -8px;
+}
+
+.stock-tag {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--green);
+    background-color: var(--background-green);
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(2, 84, 45, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stock-tag.out-of-stock {
+    color: #a51d24;
+    background-color: #fdf2f2;
+    border-color: rgba(165, 29, 36, 0.2);
+}
+
+
 .product-description {
     font-size: 16px;
     line-height: 1.4;

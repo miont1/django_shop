@@ -1,5 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     // --- General logic for all pages (Login/Logout Simulation) ---
     const loginForm = document.getElementById('login-form');
     const logoutButton = document.getElementById('logout-button');
@@ -40,18 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // 2. Pagination Logic
-        const paginationList = document.querySelector('.pagination-list');
-        if (paginationList) {
-            const paginationLinks = paginationList.querySelectorAll('.pagination__link');
-            paginationLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    paginationLinks.forEach(lnk => lnk.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
+
 
         // 3. Filter Logic (Keywords and Checkboxes)
         const keywordsList = document.querySelector('.keywords-list');
@@ -112,7 +117,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const decreaseBtn = quantityCounter.querySelector('[data-action="decrease"]');
             const increaseBtn = quantityCounter.querySelector('[data-action="increase"]');
             const quantityValueSpan = quantityCounter.querySelector('.quantity-value');
-            let quantity = 0;
+            
+            const productId = cartControls.dataset.productId;
+            const stock = parseInt(cartControls.dataset.stock || '0');
+            let quantity = parseInt(cartControls.dataset.initialQty || '0');
+            
             function updateView() {
                 if (quantity === 0) {
                     addToCartBtn.classList.remove('is-hidden');
@@ -123,9 +132,62 @@ document.addEventListener('DOMContentLoaded', function() {
                     quantityValueSpan.textContent = `${quantity} in cart`;
                 }
             }
-            addToCartBtn.addEventListener('click', function() { quantity = 1; updateView(); });
-            decreaseBtn.addEventListener('click', function() { if (quantity > 0) { quantity--; updateView(); } });
-            increaseBtn.addEventListener('click', function() { quantity++; updateView(); });
+
+            function syncCart(newQty) {
+                if (newQty === 0) {
+                    fetch(`/cart/remove-ajax/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            quantity = 0;
+                            updateView();
+                        }
+                    });
+                } else {
+                    fetch(`/cart/add-ajax/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ quantity: newQty, override: true })
+                    }).then(response => {
+                        if (response.ok) {
+                            quantity = newQty;
+                            updateView();
+                        } else {
+                            response.json().then(data => {
+                                alert(data.error || 'Could not update cart');
+                            });
+                        }
+                    });
+                }
+            }
+
+            addToCartBtn.addEventListener('click', function() {
+                if (stock > 0) {
+                    syncCart(1);
+                } else {
+                    alert('Out of stock');
+                }
+            });
+            decreaseBtn.addEventListener('click', function() {
+                if (quantity > 0) {
+                    syncCart(quantity - 1);
+                }
+            });
+            increaseBtn.addEventListener('click', function() {
+                if (quantity < stock) {
+                    syncCart(quantity + 1);
+                } else {
+                    alert(`Only ${stock} units available in stock.`);
+                }
+            });
+            
             updateView();
         }
     }
@@ -135,6 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cartPageContent) {
         const cartItemsList = document.getElementById('cart-items-list');
         const cartTotalPriceElem = document.getElementById('cart-total-price');
+        
         function updateCartTotal() {
             let total = 0;
             document.querySelectorAll('.cart-item').forEach(item => {
@@ -143,28 +206,80 @@ document.addEventListener('DOMContentLoaded', function() {
                     total += parseFloat(priceText.replace('$', ''));
                 }
             });
-            if (cartTotalPriceElem) cartTotalPriceElem.textContent = `$${total.toFixed(2)}`;
+            if (cartTotalPriceElem) {
+                cartTotalPriceElem.textContent = `$${total.toFixed(2)}`;
+            }
         }
+        
         if (cartItemsList) {
             cartItemsList.addEventListener('click', function(event) {
                 const cartItem = event.target.closest('.cart-item');
                 if (!cartItem) return;
+                
+                const productId = cartItem.dataset.productId;
+                const stock = parseInt(cartItem.dataset.stock || '0');
                 const quantityElem = cartItem.querySelector('.quantity-value-cart');
                 const itemTotalElem = cartItem.querySelector('[data-item-total-price]');
                 const basePrice = parseFloat(cartItem.dataset.price);
                 let quantity = parseInt(quantityElem.textContent);
+                
+                let isQuantityChanged = false;
+                let isRemoved = false;
+                
                 if (event.target.closest('[data-action="increase"]')) {
-                    quantity++;
+                    if (quantity < stock) {
+                        quantity++;
+                        isQuantityChanged = true;
+                    } else {
+                        alert(`Only ${stock} units available in stock.`);
+                    }
                 } else if (event.target.closest('[data-action="decrease"]')) {
-                    quantity = quantity > 1 ? quantity - 1 : 0;
+                    if (quantity > 1) {
+                        quantity--;
+                        isQuantityChanged = true;
+                    } else {
+                        isRemoved = true;
+                    }
+                } else if (event.target.closest('[data-action="remove"]')) {
+                    isRemoved = true;
                 }
-                if (event.target.closest('[data-action="remove"]') || quantity === 0) {
-                    cartItem.remove();
-                } else {
-                    quantityElem.textContent = quantity;
-                    itemTotalElem.textContent = `$${(basePrice * quantity).toFixed(2)}`;
+                
+                if (isRemoved) {
+                    fetch(`/cart/remove-ajax/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            cartItem.remove();
+                            updateCartTotal();
+                            if (document.querySelectorAll('.cart-item').length === 0) {
+                                location.reload();
+                            }
+                        }
+                    });
+                } else if (isQuantityChanged) {
+                    fetch(`/cart/add-ajax/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ quantity: quantity, override: true })
+                    }).then(response => {
+                        if (response.ok) {
+                            quantityElem.textContent = quantity;
+                            itemTotalElem.textContent = `$${(basePrice * quantity).toFixed(2)}`;
+                            updateCartTotal();
+                        } else {
+                            response.json().then(data => {
+                                alert(data.error || 'Failed to update quantity');
+                            });
+                        }
+                    });
                 }
-                updateCartTotal();
             });
         }
         updateCartTotal();

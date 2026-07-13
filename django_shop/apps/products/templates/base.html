@@ -36,23 +36,26 @@
             </ul>
         </nav>
 
-        {% if user.is_authenticated %}
-            <!-- Block for authorized user -->
-            <div class="header__user-actions" id="auth-user">
-                <a href="#" class="user-icon" aria-label="My Account">
-                    <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
-                </a>
-                <a href="#" class="cart-icon" aria-label="Shopping Cart">
-                    <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
-                </a>
-            </div>
-        {% else %}
-            <!-- Block for unauthorized user -->
-            <div class="header__auth-buttons" id="auth-guest">
-                <a href="#" class="button button--secondary">Sign in</a>
-                <a href="#" class="button button--primary">Register</a>
-            </div>
-        {% endif %}
+        <div style="display: flex; align-items: center; gap: 24px;">
+            {% if user.is_authenticated %}
+                <!-- Block for authorized user -->
+                <div class="header__user-actions" id="auth-user" style="display: flex;">
+                    <a href="#" class="user-icon" aria-label="My Account">
+                        <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
+                    </a>
+                </div>
+            {% else %}
+                <!-- Block for unauthorized user -->
+                <div class="header__auth-buttons" id="auth-guest">
+                    <a href="#" class="button button--secondary">Sign in</a>
+                    <a href="#" class="button button--primary">Register</a>
+                </div>
+            {% endif %}
+
+            <a href="{% url 'cart:cart_detail' %}" class="cart-icon" aria-label="Shopping Cart">
+                <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
+            </a>
+        </div>
     </div>
 </header>
 
