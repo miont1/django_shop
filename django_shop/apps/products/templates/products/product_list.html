@@ -29,6 +29,27 @@
                         {% endfor %}
                     </div>
                 </div>
+
+                <div class="sidebar__section" style="margin-top: 30px;">
+                    <h3 class="section-title">Price Range</h3>
+                    <div class="price-range-control">
+                        <div class="price-range-item" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <label style="font-size: 0.9rem; color: #a0aec0;">Min Price</label>
+                                <input type="number" name="price_gte" id="price_gte_input" min="0" max="{{ max_db_price }}" value="{{ price_gte|default:0 }}" style="width: 70px; background-color: var(--background-default, #fff); border: 1px solid var(--border-default, #e2e8f0); color: var(--black-main, #1a202c); padding: 6px 8px; border-radius: 6px; font-size: 0.85rem;">
+                            </div>
+                            <input type="range" id="price_gte_slider" min="0" max="{{ max_db_price }}" value="{{ price_gte|default:0 }}" style="width: 100%; accent-color: #319795;">
+                        </div>
+                        <div class="price-range-item" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <label style="font-size: 0.9rem; color: #a0aec0;">Max Price</label>
+                                <input type="number" name="price_lte" id="price_lte_input" min="0" max="{{ max_db_price }}" value="{{ price_lte|default:max_db_price }}" style="width: 70px; background-color: var(--background-default, #fff); border: 1px solid var(--border-default, #e2e8f0); color: var(--black-main, #1a202c); padding: 6px 8px; border-radius: 6px; font-size: 0.85rem;">
+                            </div>
+                            <input type="range" id="price_lte_slider" min="0" max="{{ max_db_price }}" value="{{ price_lte|default:max_db_price }}" style="width: 100%; accent-color: #319795;">
+                        </div>
+                        <button type="submit" class="button button--primary" style="width: 100%; padding: 8px 12px; font-size: 0.9rem; cursor: pointer;">Apply Price Filter</button>
+                    </div>
+                </div>
             </aside>
 
             <section class="products-area product-grid-section">
@@ -141,6 +162,30 @@ document.addEventListener('DOMContentLoaded', function() {
             filterForm.submit();
         });
     });
+
+    // Price Range inputs and sliders synchronization
+    const gteInput = document.getElementById('price_gte_input');
+    const gteSlider = document.getElementById('price_gte_slider');
+    const lteInput = document.getElementById('price_lte_input');
+    const lteSlider = document.getElementById('price_lte_slider');
+
+    if (gteInput && gteSlider) {
+        gteSlider.addEventListener('input', function() {
+            gteInput.value = this.value;
+        });
+        gteInput.addEventListener('change', function() {
+            gteSlider.value = this.value;
+        });
+    }
+
+    if (lteInput && lteSlider) {
+        lteSlider.addEventListener('input', function() {
+            lteInput.value = this.value;
+        });
+        lteInput.addEventListener('change', function() {
+            lteSlider.value = this.value;
+        });
+    }
 });
 </script>
 {% endblock %}

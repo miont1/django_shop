@@ -1,5 +1,5 @@
 from django.views.generic import ListView, DetailView
-from django.db.models import Q, QuerySet, Sum, Avg
+from django.db.models import Q, QuerySet, Sum, Avg, Max
 from django.db.models.functions import Coalesce
 from .models import Product, Review, Category
 
@@ -50,6 +50,13 @@ class ProductListView(ListView):
         context["active_sort"] = self.request.GET.get("sort", "")
         context["search_query"] = self.request.GET.get("q", "")
         
+        # Calculate dynamic max price from database for range sliders
+        max_db_price = Product.objects.filter(is_active=True).aggregate(Max("price"))["price__max"]
+        context["max_db_price"] = int(max_db_price) if max_db_price else 100
+        context["price_gte"] = self.request.GET.get("price_gte", "")
+        context["price_lte"] = self.request.GET.get("price_lte", "")
+
+        # Build query string for pagination links (preserving other filters)
         query_params = self.request.GET.copy()
         if "page" in query_params:
             del query_params["page"]
