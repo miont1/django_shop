@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Sum
 from django.http import HttpRequest
 
 from apps.products.models import Product  # type: ignore[import-not-found]

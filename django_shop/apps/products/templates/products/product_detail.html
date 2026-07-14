@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Hop & Barley{% endblock %}
+
+{% block content %}
+<main class="page-product">
+    <div class="container">
+        <!-- Product Info Section -->
+        <section class="product-details-section">
+            <div class="product-image-container">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <img src="{% static 'img/products/citra_hops.jpg' %}" alt="Placeholder" class="product-image">
+                {% endif %}
+            </div>
+            <div class="product-info-column">
+                <div class="product-title-price">
+                    <h1 class="product-name">{{ product.name }}</h1>
+                    <div class="price-section">
+                        <span class="price-tag">per unit</span>
+                        <p class="product-price">${{ product.price }}</p>
+                    </div>
+                    <div class="stock-section">
+                        {% if product.stock > 0 %}
+                            <span class="stock-tag">
+                                <i class="fa-solid fa-check"></i> Stock: {{ product.stock }} units available
+                            </span>
+                        {% else %}
+                            <span class="stock-tag out-of-stock">
+                                <i class="fa-solid fa-xmark"></i> Out of stock
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="product-description">
+                    {% if product.description %}
+                        <p>{{ product.description|linebreaksbr }}</p>
+                    {% else %}
+                        <p>No description available for this product.</p>
+                    {% endif %}
+                </div>
+                <!-- Container for managing the cart (hooks up with main.js script) -->
+                <div class="cart-controls" data-product-id="{{ product.id }}" data-initial-qty="{{ current_quantity }}" data-stock="{{ product.stock }}">
+                    <!-- Add to Cart button (visible by default) -->
+                    <button class="button button--primary add-to-cart-button" id="add-to-cart-btn" {% if product.stock == 0 %}disabled style="opacity:0.6;"{% endif %}>
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>{% if product.stock > 0 %}Add to Cart{% else %}Out of Stock{% endif %}</span>
+                    </button>
+
+                    <!-- Quantity counter (hidden by default, handled by main.js) -->
+                    <div class="quantity-counter is-hidden" id="quantity-counter">
+                        <button class="quantity-btn" data-action="decrease" aria-label="Decrease quantity">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <span class="quantity-value">1 in cart</span>
+                        <button class="quantity-btn" data-action="increase" aria-label="Increase quantity">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Specifications Accordion -->
+        <section class="accordion-section">
+            <div class="accordion-item">
+                <div class="accordion-title">
+                    <h3>Technical Specifications</h3>
+                    <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                    <ul>
+                        <li><strong>Categories:</strong> 
+                            {% for cat in product.categories.all %}
+                                {{ cat.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                General
+                            {% endfor %}
+                        </li>
+                        <li><strong>Stock Availability:</strong> 
+                            {% if product.stock > 0 %}
+                                In stock ({{ product.stock }} units available)
+                            {% else %}
+                                Out of stock
+                            {% endif %}
+                        </li>
+                        <li><strong>Base Price:</strong> ${{ product.price }}</li>
+                        <li><strong>Added on:</strong> {{ product.created_at|date:"F d, Y" }}</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Latest Reviews Section -->
+        <section class="reviews-section">
+            <h2 class="reviews-title">Latest reviews (Average Rating: {{ average_rating }})</h2>
+            <div class="reviews-grid">
+                {% for review in reviews %}
+                <!-- Review Card -->
+                <div class="review-card">
+                    <div class="review-rating">
+                        {% for i in "12345"|make_list %}
+                            {% if review.rating >= forloop.counter %}
+                                <i class="fa-solid fa-star"></i>
+                            {% else %}
+                                <i class="fa-regular fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="review-body">
+                        <h4 class="review-heading">Rating: {{ review.rating }}/5</h4>
+                        <p class="review-text">{{ review.comment }}</p>
+                    </div>
+                    <div class="review-author">
+                        <img src="{% static 'img/avatars/avatar1.svg' %}" alt="User avatar" class="author-avatar">
+                        <span class="author-name">{{ review.user.email }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="grid-column: 1 / -1; padding: 20px 0;">
+                    <p style="color: #a0aec0;">No reviews yet. Be the first to leave a review!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Shopping Cart | Hop & Barley{% endblock %}
+
+{% block content %}
+<main class="cart-page-wrapper">
+  <div class="cart-container">
+    <h1 class="cart-title">Shopping Cart</h1>
+
+    <div class="cart-items-list" id="cart-items-list">
+      {% csrf_token %}
+      {% for item in cart %}
+      {% with product=item.product %}
+      <div class="cart-item" data-price="{{ item.price }}" data-product-id="{{ product.id }}" data-stock="{{ product.stock }}">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="cart-item__image">
+        {% else %}
+          <img src="{% static 'img/products/citra_hops.jpg' %}" alt="Placeholder" class="cart-item__image">
+        {% endif %}
+        <div class="cart-item__body">
+          <div class="cart-item__details">
+            <h2 class="cart-item__name">
+              <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            </h2>
+            <div class="cart-item__price-info">
+              <p class="cart-item__price" data-item-total-price>
+                ${{ item.total_price }}
+              </p>
+              <span class="cart-item__price-tag">per unit</span>
+            </div>
+            {% if not item.has_enough_stock %}
+              <div class="stock-warning" style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 8px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Not enough stock (only {{ product.stock }} available)
+              </div>
+            {% endif %}
+          </div>
+          <div class="cart-item__actions">
+            <div class="cart-item__quantity-selector">
+              <button class="quantity-btn-cart" data-action="decrease"><i class="fa-solid fa-minus"></i></button>
+              <span class="quantity-value-cart">{{ item.quantity }}</span>
+              <button class="quantity-btn-cart" data-action="increase" {% if not item.has_enough_stock or item.quantity >= product.stock %}disabled style="opacity: 0.5;"{% endif %}><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <button class="button--remove" data-action="remove">
+              Remove <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% empty %}
+      <div style="text-align: center; padding: 48px 0; grid-column: 1 / -1;">
+        <p style="font-size: 18px; color: var(--grey-text); margin-bottom: 24px;">Your cart is empty.</p>
+        <a href="{% url 'products:product_list' %}" class="button button--primary" style="display: inline-block; width: auto; padding: 12px 24px; text-decoration: none;">Go to Catalog</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if cart %}
+    <div class="cart-summary">
+      <div class="cart-summary__total">
+        <p>Total</p>
+        <p id="cart-total-price">${{ cart.get_total_price }}</p>
+      </div>
+      <!-- Check if there are any stock issues before allowing checkout -->
+      {% if has_stock_issues %}
+        <button class="button button--primary button--checkout" disabled style="opacity: 0.6; cursor: not-allowed;">
+          Please fix stock issues to proceed
+        </button>
+      {% else %}
+        <a href="#" class="button button--primary button--checkout" style="text-decoration: none;">Proceed to Checkout</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}
