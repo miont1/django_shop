@@ -17,10 +17,25 @@ def user():
 def product():
     return Product.objects.create(name="product", slug="product", price=100, stock=2)
 
+@pytest.fixture()
+def order_factory():
+    def _create_order(user, **kwargs):
+        defaults = {
+            "first_name": "First",
+            "middle_name": "Middle",
+            "last_name": "Last",
+            "email": "test@example.com",
+            "phone": "123456789",
+            "address": "Test Address",
+        }
+        defaults.update(kwargs)
+        return Order.objects.create(user=user, **defaults)
+    return _create_order
+
 @pytest.mark.django_db
 class TestOrder:
-    def test_order_creation(self, user, product):
-        order = Order.objects.create(user=user)
+    def test_order_creation(self, user, product, order_factory):
+        order = order_factory(user)
         order_item = OrderItem.objects.create(order=order, product=product, price=product.price, quantity=2)
         assert order.user.email == "email@email.com"
         assert order.status == Order.Status.pending
@@ -29,8 +44,8 @@ class TestOrder:
         order.refresh_from_db()
         assert order.total_price == 200
 
-    def test_product_update_price(self, user, product):
-        order = Order.objects.create(user=user)
+    def test_product_update_price(self, user, product, order_factory):
+        order = order_factory(user)
         order_item = OrderItem.objects.create(order=order, product=product, price=product.price, quantity=2)
         order.refresh_from_db()
         assert order.total_price == Decimal('200.0')
@@ -43,16 +58,16 @@ class TestOrder:
         assert order.total_price == Decimal('200.0')
         assert order_item.price == Decimal('100.0')
 
-    def test_not_enough_stock(self, user, product):
-        order = Order.objects.create(user=user)
+    def test_not_enough_stock(self, user, product, order_factory):
+        order = order_factory(user)
         with pytest.raises(ValidationError):
             OrderItem.objects.create(order=order, product=product, price=product.price, quantity=3)
 
-    def test_order_item_successful_stock_deduction(self, user, product):
+    def test_order_item_successful_stock_deduction(self, user, product, order_factory):
         product.stock = 10
         product.save()
 
-        order = Order.objects.create(user=user)
+        order = order_factory(user)
 
         order_item = OrderItem.objects.create(order=order, product=product, price=product.price, quantity=3)
         product.refresh_from_db()
@@ -70,8 +85,8 @@ class TestOrder:
         product.refresh_from_db()
         assert product.stock == 6
 
-    def test_delete_order_item(self, user, product):
-        order = Order.objects.create(user=user)
+    def test_delete_order_item(self, user, product, order_factory):
+        order = order_factory(user)
         order_item = OrderItem.objects.create(order=order, product=product, price=product.price, quantity=1)
         order.refresh_from_db()
         assert order.total_price == Decimal('100.0')
@@ -85,8 +100,8 @@ class TestOrder:
         order.refresh_from_db()
         assert order.total_price == Decimal('0.0')
 
-    def test_order_item_updated_not_enough_stock(self, user, product):
-        order = Order.objects.create(user=user)
+    def test_order_item_updated_not_enough_stock(self, user, product, order_factory):
+        order = order_factory(user)
         order_item = OrderItem.objects.create(order=order, product=product, price=product.price, quantity=1)
         product.refresh_from_db()
         assert product.stock == 1

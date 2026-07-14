@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout | Hop & Barley{% endblock %}
+
+{% block content %}
+<main class="checkout-page-wrapper">
+    <div class="checkout-container">
+        <h1 class="checkout-title">Order Details</h1>
+
+        <form id="checkout-form" method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="checkout-section" style="border-color: #a51d24;">
+                    <div style="color: #a51d24; font-size: 16px; font-weight: 500;">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Shipping Information -->
+            <section class="checkout-section">
+                <h2 class="checkout-section__title">Shipping information</h2>
+                
+                <div class="checkout-form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.first_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label for="{{ form.middle_name.id_for_label }}">Middle Name</label>
+                    {{ form.middle_name }}
+                    {% if form.middle_name.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.middle_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.last_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label for="{{ form.phone.id_for_label }}">Phone number</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.phone.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label for="{{ form.address.id_for_label }}">Shipping address</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.address.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Payment Method -->
+            <section class="checkout-section">
+                <h2 class="checkout-section__title">Payment Method</h2>
+                <div class="payment-options">
+                    <label class="radio-option">
+                        <input type="radio" name="payment_method" value="debit" checked>
+                        <span class="radio-custom"></span>
+                        <span class="radio-label">Debit Card</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="payment_method" value="wallet">
+                        <span class="radio-custom"></span>
+                        <span class="radio-label">Digital Wallet</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="payment_method" value="cod">
+                        <span class="radio-custom"></span>
+                        <span class="radio-label">Cash On Delivery</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Order Summary -->
+            <section class="checkout-summary">
+                <h2 class="checkout-section__title">Order Summary</h2>
+                <div class="summary-details">
+                    <div class="summary-total">
+                        <p>Total</p>
+                        <p>${{ cart.get_total_price }}</p>
+                    </div>
+                    <button type="submit" class="button button--primary button--pay">Pay</button>
+                </div>
+            </section>
+        </form>
+    </div>
+</main>
+{% endblock %}

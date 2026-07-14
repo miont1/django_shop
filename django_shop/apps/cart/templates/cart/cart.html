@@ -68,7 +68,7 @@
           Please fix stock issues to proceed
         </button>
       {% else %}
-        <a href="#" class="button button--primary button--checkout" style="text-decoration: none;">Proceed to Checkout</a>
+        <a href="{% url 'orders:order_create' %}" class="button button--primary button--checkout" style="text-decoration: none;">Proceed to Checkout</a>
       {% endif %}
     </div>
     {% endif %}

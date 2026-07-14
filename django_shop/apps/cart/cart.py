@@ -51,20 +51,28 @@ class Cart:
         self.save()
 
     def get_total_price(self):
-        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+        product_ids = self.cart.keys()
+        existing_ids = set(str(id_) for id_ in Product.objects.filter(id__in=product_ids).values_list('id', flat=True))
+        return sum(Decimal(item['price']) * item['quantity'] for id_, item in self.cart.items() if id_ in existing_ids)
 
     def __iter__(self):
         product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=product_ids)
-        cart_copy = self.cart.copy()
-        for product in products:
-            cart_copy[str(product.id)]['product'] = product
+        if not products:
+            return None
 
-        for item in cart_copy.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
-            item['has_enough_stock'] = item['product'].stock >= item['quantity']
-            yield item
+        product_map = {str(product.id): product for product in products}
+
+        for product_id, item in self.cart.items():
+            if product_id in product_map:
+                item_copy = item.copy()
+                item_copy['product'] = product_map[product_id]
+                item_copy['price'] = Decimal(item_copy['price'])
+                item_copy['total_price'] = item_copy['price'] * item_copy['quantity']
+                item_copy['has_enough_stock'] = item_copy['product'].stock >= item_copy['quantity']
+                yield item_copy
 
     def __len__(self):
-        return sum(item['quantity'] for item in self.cart.values())
+        product_ids = self.cart.keys()
+        existing_ids = set(str(id_) for id_ in Product.objects.filter(id__in=product_ids).values_list('id', flat=True))
+        return sum(item['quantity'] for id_, item in self.cart.items() if id_ in existing_ids)
