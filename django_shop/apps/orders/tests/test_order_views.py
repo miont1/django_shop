@@ -2,6 +2,8 @@ from decimal import Decimal
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.core import mail
+from django.conf import settings
 from apps.cart.cart import Cart
 from apps.products.models import Product
 from apps.orders.models import Order, OrderItem
@@ -16,7 +18,7 @@ def user():
 def product():
     return Product.objects.create(name="product", slug="product", price=100, stock=5)
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestOrderViews:
     def test_order_create_view_get_empty_cart(self, client):
         url = reverse('orders:order_create')
@@ -79,6 +81,15 @@ class TestOrderViews:
         # Verify cart is empty
         new_session = client.session
         assert 'cart' not in new_session or not new_session['cart']
+
+        # Verify email was sent to customer and admin
+        assert len(mail.outbox) == 1
+        sent_email = mail.outbox[0]
+        assert sent_email.subject == f"Order #{order.id} placed successfully! | Hop & Barley"
+        assert sent_email.to == [order.email, settings.ADMIN_EMAIL]
+        assert 'John' in sent_email.body
+        assert 'product' in sent_email.body
+        assert '200.00' in sent_email.body
 
     def test_order_success_view(self, client, user):
         order = Order.objects.create(
