@@ -107,7 +107,15 @@ class TestProductViews:
         product3.stock = 10
         product3.save()
 
-        order = Order.objects.create(user=user)
+        order = Order.objects.create(
+            user=user,
+            first_name="First",
+            middle_name="Middle",
+            last_name="Last",
+            email="test@example.com",
+            phone="123456789",
+            address="Test Address",
+        )
         OrderItem.objects.create(order=order, product=product3, price=product3.price, quantity=5)
         OrderItem.objects.create(order=order, product=product1, price=product1.price, quantity=3)
 
