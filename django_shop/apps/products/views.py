@@ -1,7 +1,9 @@
 from django.views.generic import ListView, DetailView
-from django.db.models import Q, QuerySet, Sum, Avg, Max
+from django.db.models import Q, Sum, Avg, Max, QuerySet
 from django.db.models.functions import Coalesce
-from .models import Product, Review, Category
+
+from apps.cart.cart import Cart # noqa
+from .models import Product, Category
 
 
 class ProductListView(ListView):
@@ -10,7 +12,7 @@ class ProductListView(ListView):
     context_object_name = "products"
     paginate_by = 12
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         queryset = Product.objects.filter(is_active=True).prefetch_related("categories")
 
         search_query = self.request.GET.get("q")
@@ -43,7 +45,7 @@ class ProductListView(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         context["categories"] = Category.objects.all()
         context["active_categories"] = self.request.GET.getlist("category")
@@ -80,8 +82,6 @@ class ProductDetailView(DetailView):
         average_rating = reviews.aggregate(Avg("rating"))["rating__avg"]
         context['average_rating'] = round(average_rating, 2) if average_rating else 'No rating'
         
-        # Get current quantity in cart
-        from apps.cart.cart import Cart
         cart = Cart(self.request)
         context['current_quantity'] = cart.cart.get(str(product.id), {}).get('quantity', 0)
         

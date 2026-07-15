@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register | Hop & Barley{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="auth-page-wrapper">
+    <div class="auth-background">
+        <img src="{% static 'img/background/pattern.jpg' %}" alt="Background pattern">
+    </div>
+    <div class="auth-form-container">
+        <div class="auth-container auth-container--register">
+            <div class="Legend">
+                <h1 class="auth-title">Register</h1>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="form-errors-summary" style="background-color: rgba(229, 62, 62, 0.1); border: 1px solid #e53e3e; border-radius: 8px; padding: 12px; margin-bottom: 20px; color: #fc8181; font-size: 0.9rem;">
+                    {% for error in form.non_field_errors %}
+                        <p style="margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form class="auth-form" id="register-form" method="post" action="{% url 'users:register' %}">
+                {% csrf_token %}
+                
+                <div class="InputField">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="InputField">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.password1.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="InputField">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.password2.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="CheckboxField">
+                    <label class="checkbox-container">Remember me
+                        <input type="checkbox" name="remember_me" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+
+                <div class="ButtonGroup">
+                    <button type="submit" class="button button--primary">Register</button>
+                </div>
+            </form>
+
+            <p class="auth-switch">Already have an account? <a href="{% url 'users:login' %}">Sign in</a></p>
+        </div>
+    </div>
+</main>
+{% endblock %}

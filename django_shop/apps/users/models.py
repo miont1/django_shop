@@ -26,6 +26,7 @@ class UserManager(BaseUserManager['User']):
 
 class User(AbstractUser):
     email: models.EmailField[str, str] = models.EmailField(unique=True, verbose_name="Email")
+    username: models.CharField[str, str] = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name="Username")
     middle_name: models.CharField[str, str] = models.CharField(max_length=100, blank=True, null=True, verbose_name="Middle Name")
     phone: models.CharField[str, str] = models.CharField(max_length=15, blank=True, null=True, verbose_name='Telephone number')
     address: models.TextField[str, str] = models.TextField(blank=True, null=True, verbose_name='Address')

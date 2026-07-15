@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign In | Hop & Barley{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="auth-page-wrapper">
+    <div class="auth-background">
+        <img src="{% static 'img/background/pattern.jpg' %}" alt="Background pattern">
+    </div>
+    <div class="auth-form-container">
+        <div class="auth-container auth-container--login">
+            <div class="Legend">
+                <h1 class="auth-title">Sign In</h1>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-errors-summary"
+                style="background-color: rgba(229, 62, 62, 0.1); border: 1px solid #e53e3e; border-radius: 8px; padding: 12px; margin-bottom: 20px; color: #fc8181; font-size: 0.9rem;">
+                {% for error in form.non_field_errors %}
+                <p style="margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form class="auth-form" id="login-form" method="post" action="{% url 'users:login' %}">
+                {% csrf_token %}
+
+                <div class="InputField">
+                    <label for="{{ form.username.id_for_label }}">Email</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.username.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="InputField">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                    <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
+                        {{ form.password.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="ButtonGroup">
+                    <button type="submit" class="button button--primary">Sign In</button>
+                </div>
+
+                <div class="TextLink">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </form>
+
+            <p class="auth-switch">Don’t have an account? <a href="{% url 'users:register' %}">Sign up</a></p>
+        </div>
+    </div>
+</main>
+{% endblock %}
