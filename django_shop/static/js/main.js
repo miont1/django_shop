@@ -15,8 +15,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-
-
+    // Helper function to show flash messages dynamically
+    window.showFlashMessage = function(text, tags='success') {
+        let container = document.querySelector('.messages-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'messages-container';
+            container.style.cssText = 'max-width: 1200px; margin: 20px auto; padding: 0 20px;';
+            const main = document.querySelector('main');
+            if (main) {
+                main.parentNode.insertBefore(container, main);
+            } else {
+                document.body.prepend(container);
+            }
+        } else {
+            container.innerHTML = '';
+        }
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${tags}`;
+        const isSuccess = tags === 'success';
+        alert.style.cssText = `padding: 15px; margin-bottom: 10px; border-radius: 8px; background-color: ${isSuccess ? 'rgba(49, 151, 149, 0.15)' : 'rgba(229, 62, 62, 0.15)'}; border: 1px solid ${isSuccess ? '#319795' : '#e53e3e'}; color: ${isSuccess ? '#319795' : '#e53e3e'}; font-weight: 500; transition: opacity 0.5s ease;`;
+        alert.textContent = text;
+        container.appendChild(alert);
+        
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        }, 3000);
+    };
 
     // --- Logic for the Main Page (home.html) ---
     const homePageContent = document.querySelector('.main-content-grid');
@@ -119,6 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.ok) {
                             quantity = 0;
                             updateView();
+                            response.json().then(data => {
+                                if (data.message && window.showFlashMessage) {
+                                    window.showFlashMessage(data.message);
+                                }
+                            });
                         }
                     });
                 } else {
@@ -133,6 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.ok) {
                             quantity = newQty;
                             updateView();
+                            response.json().then(data => {
+                                if (data.message && window.showFlashMessage) {
+                                    window.showFlashMessage(data.message);
+                                }
+                            });
                         } else {
                             response.json().then(data => {
                                 alert(data.error || 'Could not update cart');
@@ -231,6 +267,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             updateCartTotal();
                             if (document.querySelectorAll('.cart-item').length === 0) {
                                 location.reload();
+                            } else {
+                                response.json().then(data => {
+                                    if (data.message && window.showFlashMessage) {
+                                        window.showFlashMessage(data.message);
+                                    }
+                                });
                             }
                         }
                     });
@@ -247,6 +289,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             quantityElem.textContent = quantity;
                             itemTotalElem.textContent = `$${(basePrice * quantity).toFixed(2)}`;
                             updateCartTotal();
+                            response.json().then(data => {
+                                if (data.message && window.showFlashMessage) {
+                                    window.showFlashMessage(data.message);
+                                }
+                            });
                         } else {
                             response.json().then(data => {
                                 alert(data.error || 'Failed to update quantity');
@@ -315,4 +362,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // --- Password visibility toggle ---
+    const toggles = document.querySelectorAll('.password-toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            if (input && input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else if (input && input.type === 'text') {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
 });

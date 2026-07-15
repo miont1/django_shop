@@ -24,7 +24,7 @@
             </div>
             {% endif %}
 
-            <form class="auth-form" id="login-form" method="post" action="{% url 'users:login' %}">
+            <form class="auth-form" id="django-login-form" method="post" action="{% url 'users:login' %}">
                 {% csrf_token %}
 
                 <div class="InputField">
@@ -39,7 +39,12 @@
 
                 <div class="InputField">
                     <label for="{{ form.password.id_for_label }}">Password</label>
-                    {{ form.password }}
+                    <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                        {{ form.password }}
+                        <span class="password-toggle" style="position: absolute; right: 16px; cursor: pointer; color: var(--grey-text, #757575); z-index: 10;">
+                            <i class="fa-solid fa-eye"></i>
+                        </span>
+                    </div>
                     {% if form.password.errors %}
                     <div class="form-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 5px;">
                         {{ form.password.errors.0 }}

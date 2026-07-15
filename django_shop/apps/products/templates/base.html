@@ -40,7 +40,7 @@
             {% if user.is_authenticated %}
                 <!-- Block for authorized user -->
                 <div class="header__user-actions" id="auth-user" style="display: flex; align-items: center; gap: 16px;">
-                    <a href="#" class="user-icon" aria-label="My Account">
+                    <a href="{% url 'users:profile' %}" class="user-icon" aria-label="My Account">
                         <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
                     </a>
                     <form method="post" action="{% url 'users:logout' %}" style="display: inline; margin: 0;">
