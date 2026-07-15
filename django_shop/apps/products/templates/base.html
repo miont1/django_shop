@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% if user.is_authenticated %}user-logged-in{% endif %}">
 <!-- Header -->
 <header>
     <div class="header-container">
@@ -39,16 +39,20 @@
         <div style="display: flex; align-items: center; gap: 24px;">
             {% if user.is_authenticated %}
                 <!-- Block for authorized user -->
-                <div class="header__user-actions" id="auth-user" style="display: flex;">
-                    <a href="#" class="user-icon" aria-label="My Account">
+                <div class="header__user-actions" id="auth-user" style="display: flex; align-items: center; gap: 16px;">
+                    <a href="{% url 'users:profile' %}" class="user-icon" aria-label="My Account">
                         <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
                     </a>
+                    <form method="post" action="{% url 'users:logout' %}" style="display: inline; margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="button button--secondary" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 6px; cursor: pointer;">Log out</button>
+                    </form>
                 </div>
             {% else %}
                 <!-- Block for unauthorized user -->
                 <div class="header__auth-buttons" id="auth-guest">
-                    <a href="#" class="button button--secondary">Sign in</a>
-                    <a href="#" class="button button--primary">Register</a>
+                    <a href="{% url 'users:login' %}" class="button button--secondary">Sign in</a>
+                    <a href="{% url 'users:register' %}" class="button button--primary">Register</a>
                 </div>
             {% endif %}
 
@@ -58,6 +62,17 @@
         </div>
     </div>
 </header>
+
+<!-- Messages -->
+{% if messages %}
+    <div class="messages-container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="padding: 15px; margin-bottom: 10px; border-radius: 8px; background-color: {% if message.tags == 'success' %}rgba(49, 151, 149, 0.15){% else %}rgba(229, 62, 62, 0.15){% endif %}; border: 1px solid {% if message.tags == 'success' %}#319795{% else %}#e53e3e{% endif %}; color: {% if message.tags == 'success' %}#319795{% else %}#e53e3e{% endif %}; font-weight: 500;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 <!-- Main Content -->
 {% block content %}{% endblock %}

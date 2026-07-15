@@ -145,3 +145,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "pass123")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "example@email.com")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Hop & Barley <example@email.com>")
+
+# Account actions
+LOGIN_REDIRECT_URL = 'products:product_list'
+
+LOGOUT_REDIRECT_URL = 'products:product_list'

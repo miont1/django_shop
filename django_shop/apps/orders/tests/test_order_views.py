@@ -2,6 +2,8 @@ from decimal import Decimal
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.core import mail
+from django.conf import settings
 from apps.cart.cart import Cart
 from apps.products.models import Product
 from apps.orders.models import Order, OrderItem
@@ -16,7 +18,7 @@ def user():
 def product():
     return Product.objects.create(name="product", slug="product", price=100, stock=5)
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 class TestOrderViews:
     def test_order_create_view_get_empty_cart(self, client):
         url = reverse('orders:order_create')
@@ -80,17 +82,27 @@ class TestOrderViews:
         new_session = client.session
         assert 'cart' not in new_session or not new_session['cart']
 
+        # Verify email was sent to customer and admin
+        assert len(mail.outbox) == 1
+        sent_email = mail.outbox[0]
+        assert sent_email.subject == f"Order #{order.id} placed successfully! | Hop & Barley"
+        assert sent_email.to == [order.email, settings.ADMIN_EMAIL]
+        assert 'John' in sent_email.body
+        assert 'product' in sent_email.body
+        assert '200.00' in sent_email.body
+
     def test_order_success_view(self, client, user):
         order = Order.objects.create(
             user=user,
             first_name='John',
             middle_name='Doe',
             last_name='Smith',
-            email='john@example.com',
+            email=user.email,
             phone='+380991234567',
             address='Kyiv, Main St 1',
             total_price=Decimal('200.00')
         )
+        client.force_login(user)
         url = reverse('orders:success', args=[order.id])
         response = client.get(url)
         assert response.status_code == 200
@@ -98,3 +110,71 @@ class TestOrderViews:
         content = response.content.decode('utf-8')
         assert 'John' in content
         assert str(order.id) in content
+
+    def test_order_success_view_unauthorized_anonymous(self, client, user):
+        order = Order.objects.create(
+            user=user,
+            first_name='John',
+            middle_name='Doe',
+            last_name='Smith',
+            email=user.email,
+            phone='+380991234567',
+            address='Kyiv, Main St 1',
+            total_price=Decimal('200.00')
+        )
+        url = reverse('orders:success', args=[order.id])
+        response = client.get(url)
+        assert response.status_code == 403
+
+    def test_order_success_view_different_user(self, client, user):
+        other_user = User.objects.create_user(email="other@example.com", password="testpassword123")
+        order = Order.objects.create(
+            user=user,
+            first_name='John',
+            middle_name='Doe',
+            last_name='Smith',
+            email=user.email,
+            phone='+380991234567',
+            address='Kyiv, Main St 1',
+            total_price=Decimal('200.00')
+        )
+        client.force_login(other_user)
+        url = reverse('orders:success', args=[order.id])
+        response = client.get(url)
+        assert response.status_code == 403
+
+    def test_order_success_view_matching_email(self, client, user):
+        order = Order.objects.create(
+            user=None,
+            first_name='John',
+            middle_name='Doe',
+            last_name='Smith',
+            email=user.email,
+            phone='+380991234567',
+            address='Kyiv, Main St 1',
+            total_price=Decimal('200.00')
+        )
+        client.force_login(user)
+        url = reverse('orders:success', args=[order.id])
+        response = client.get(url)
+        assert response.status_code == 200
+        order.refresh_from_db()
+        assert order.user == user
+
+    def test_order_success_view_guest_session(self, client):
+        order = Order.objects.create(
+            user=None,
+            first_name='John',
+            middle_name='Doe',
+            last_name='Smith',
+            email='guest@example.com',
+            phone='+380991234567',
+            address='Kyiv, Main St 1',
+            total_price=Decimal('200.00')
+        )
+        session = client.session
+        session['placed_orders'] = [order.id]
+        session.save()
+        url = reverse('orders:success', args=[order.id])
+        response = client.get(url)
+        assert response.status_code == 200

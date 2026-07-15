@@ -10,6 +10,7 @@ urlpatterns: List = [
     path("cart/", include("apps.cart.urls", namespace="cart")),
     path("orders/", include("apps.orders.urls", namespace="orders")),
     path("", include("apps.products.urls")),
+    path("", include("apps.users.urls")),
 ]
 
 if settings.DEBUG:
