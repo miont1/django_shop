@@ -91,4 +91,52 @@ class TestUserViews:
         url = reverse('users:password_change')
         response = client.get(url)
         assert response.status_code == 200
-        assert b"Change Password" in response.content
+        assert b"Change Password" in response.content
+
+    def test_password_change_post(self, client):
+        user = User.objects.create_user(email="testuser@example.com", password="testpassword123")
+        client.force_login(user)
+        url = reverse('users:password_change')
+        data = {
+            'old_password': 'testpassword123',
+            'new_password1': 'newsecurepass123',
+            'new_password2': 'newsecurepass123',
+        }
+        response = client.post(url, data)
+        assert response.status_code == 302
+        assert response.url == reverse('users:password_change_done')
+        user.refresh_from_db()
+        assert user.check_password('newsecurepass123') is True
+
+    def test_password_change_done_get(self, client):
+        user = User.objects.create_user(email="testuser@example.com", password="testpassword123")
+        client.force_login(user)
+        url = reverse('users:password_change_done')
+        response = client.get(url)
+        assert response.status_code == 200
+        assert b"Success!" in response.content or b"password has been changed" in response.content
+
+    def test_password_reset_get(self, client):
+        url = reverse('users:password_reset')
+        response = client.get(url)
+        assert response.status_code == 200
+        assert b"Reset Password" in response.content
+        assert b"Email" in response.content
+
+    def test_password_reset_done_get(self, client):
+        url = reverse('users:password_reset_done')
+        response = client.get(url)
+        assert response.status_code == 200
+        assert b"Check your email" in response.content
+
+    def test_password_reset_confirm_invalid(self, client):
+        url = reverse('users:password_reset_confirm', kwargs={'uidb64': 'MQ', 'token': 'invalid-token'})
+        response = client.get(url)
+        assert response.status_code == 200
+        assert b"Link Invalid" in response.content
+
+    def test_password_reset_complete_get(self, client):
+        url = reverse('users:password_reset_complete')
+        response = client.get(url)
+        assert response.status_code == 200
+        assert b"Password Reset!" in response.content
