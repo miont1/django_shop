@@ -32,5 +32,5 @@ RUN python manage.py collectstatic --noinput
 # Expose port 8000 to the host
 EXPOSE 8000
 
-# Run the Django application using the Gunicorn WSGI server
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run the Django application, applying database migrations first
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]

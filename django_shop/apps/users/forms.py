@@ -1,6 +1,12 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm as AuthPasswordChangeForm
+from django.contrib.auth.forms import (
+    UserCreationForm,
+    AuthenticationForm,
+    PasswordChangeForm as AuthPasswordChangeForm,
+    PasswordResetForm as AuthPasswordResetForm,
+    SetPasswordForm as AuthSetPasswordForm,
+)
 
 User = get_user_model()
 
@@ -55,6 +61,30 @@ class PasswordChangeForm(AuthPasswordChangeForm):
         super().__init__(*args, **kwargs)
         placeholders = {
             "old_password": "Old Password",
+            "new_password1": "New Password",
+            "new_password2": "Confirm New Password"
+        }
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs.update({
+                "class": "Input",
+                "placeholder": placeholders.get(field_name, "Value")
+            })
+
+
+class PasswordResetForm(AuthPasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs.update({
+                "class": "Input",
+                "placeholder": "example@email.com"
+            })
+
+
+class SetPasswordForm(AuthSetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        placeholders = {
             "new_password1": "New Password",
             "new_password2": "Confirm New Password"
         }
