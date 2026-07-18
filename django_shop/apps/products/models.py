@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.conf import settings
@@ -29,7 +32,7 @@ class Product(models.Model):
     name: models.CharField[str, str] = models.CharField(max_length=100)
     slug: models.CharField[str, str] = models.SlugField(max_length=100, unique=True)
     description: models.TextField[str, str] = models.TextField(blank=True, null=True)
-    price: models.DecimalField[float, float] = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)])
+    price: models.DecimalField[float, float] = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
     stock: models.PositiveIntegerField[int, int] = models.PositiveIntegerField(default=0)
     categories = models.ManyToManyField(Category, related_name='products')  # type: ignore[var-annotated]
     image = models.ImageField(upload_to='products', blank=True, null=True)
