@@ -59,7 +59,7 @@ class Cart:
         product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=product_ids)
         if not products:
-            return None
+            return
 
         product_map = {str(product.id): product for product in products}
 
@@ -76,3 +76,27 @@ class Cart:
         product_ids = self.cart.keys()
         existing_ids = set(str(id_) for id_ in Product.objects.filter(id__in=product_ids).values_list('id', flat=True))
         return sum(item['quantity'] for id_, item in self.cart.items() if id_ in existing_ids)
+
+    def get_all_items(self):
+        items = []
+        total_cart_price = 0
+        for item in self:
+            product_id = str(item['product'].id)
+            product_name = item['product'].name
+            quantity = item['quantity']
+            price = item['price']
+            total_price = item['total_price']
+            has_enough_stock = item['has_enough_stock']
+            items.append(
+                {
+                    "product_id": product_id,
+                    "product_name": product_name,
+                    "quantity": quantity,
+                    "price": price,
+                    "total_price": total_price,
+                    "has_enough_stock": has_enough_stock,
+                }
+            )
+            total_cart_price += item['total_price']
+
+        return {'items': items, 'total_cart_price': total_cart_price}
