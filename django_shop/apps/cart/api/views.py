@@ -1,3 +1,5 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -13,9 +15,11 @@ class CartViewSet(viewsets.ViewSet):
 
     def list(self, request):
         cart = Cart(request)
-        serializer = CartSerializer(cart.get_all_items(), many=True)
+        serializer = CartSerializer(cart.get_all_items())
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+    @extend_schema(request=AddUpdateCartItemSerializer, responses={200: CartSerializer})
     def create(self, request):
         serializer = AddUpdateCartItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -24,27 +28,40 @@ class CartViewSet(viewsets.ViewSet):
         cart = Cart(request)
         product = get_object_or_404(Product, pk=data['product_id'])
         cart.add(product=product, quantity=data['quantity'])
-        return Response(CartSerializer(cart.get_all_items(), many=True).data, status=status.HTTP_201_CREATED)
+        response_data = CartSerializer(cart.get_all_items()).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=AddUpdateCartItemSerializer, responses={200: CartSerializer})
     def partial_update(self, request, pk=None, *args, **kwargs):
-        quantity = request.data.get('quantity')
-        override_quantity = request.data.get('override_quantity')
+        payload = {**request.data, 'product_id': pk}
 
-        serializer = AddUpdateCartItemSerializer(data={'product_id':pk, 'quantity':quantity, 'override_quantity':override_quantity})
+        serializer = AddUpdateCartItemSerializer(data=payload)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
         product = get_object_or_404(Product, pk=pk)
         cart = Cart(request)
-        cart.add(product=product, quantity=data['quantity'], override_quantity=override_quantity)
-        return Response(CartSerializer(cart.get_all_items(), many=True).data, status=status.HTTP_206_PARTIAL_CONTENT)
+        cart.add(product=product, quantity=data['quantity'], override_quantity=payload['override_quantity'])
+        response_data = CartSerializer(cart.get_all_items()).data
+        return Response(response_data, status=status.HTTP_200_OK)
 
+    @extend_schema(responses={200: CartSerializer},
+                   parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
+                description="Product ID to be deleted (`24`), or `all` for a full cart clear.",
+            )
+        ],)
     def destroy(self, request, pk:str|None=None, *args, **kwargs):
         cart = Cart(request)
         if pk == 'all':
             cart.clear()
-            return Response(CartSerializer(cart.get_all_items(), many=True).data)
+            response_data = CartSerializer(cart.get_all_items()).data
+            return Response(response_data, status=status.HTTP_200_OK)
 
         product = get_object_or_404(Product, pk=pk)
         cart.remove(product=product)
-        return Response(CartSerializer(cart.get_all_items(), many=True).data, status=status.HTTP_200_OK)
+        response_data = CartSerializer(cart.get_all_items()).data
+        return Response(response_data, status=status.HTTP_200_OK)

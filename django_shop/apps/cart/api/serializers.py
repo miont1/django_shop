@@ -10,7 +10,7 @@ class CartItemSerializer(serializers.Serializer):
 
 class CartSerializer(serializers.Serializer):
     items = CartItemSerializer(many=True, read_only=True)
-    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_cart_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
 class AddUpdateCartItemSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
