@@ -50,7 +50,6 @@ class CartViewSet(viewsets.ViewSet):
             OpenApiParameter(
                 name="id",
                 type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
                 description="Product ID to be deleted (`24`), or `all` for a full cart clear.",
             )
         ],)
