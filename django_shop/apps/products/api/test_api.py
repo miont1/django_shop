@@ -16,7 +16,7 @@ def product():
 @pytest.mark.django_db
 class TestProductAPI:
     def test_list(self, client, product):
-        url = reverse('api_products:product-list')
+        url = reverse('product_api-list')
         response = client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
@@ -26,7 +26,7 @@ class TestProductAPI:
         assert data["results"][0]["name"] == product.name
 
     def test_retrieve(self, client, product):
-        url = reverse('api_products:product-detail', args=[product.id])
+        url = reverse('product_api-detail', args=[product.id])
         response = client.get(url)
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

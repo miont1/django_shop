@@ -18,7 +18,7 @@ class Cart:
 
         self.cart = cart
 
-    def add(self, product: Product, quantity=1, override_quantity= False) -> None:
+    def add(self, product:Product, quantity:int=1, override_quantity:bool=False) -> None:
         product_id = str(product.id)
 
         if product_id in self.cart and not override_quantity:
