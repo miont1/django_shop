@@ -4,6 +4,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+
+from apps.users.api.views import UserRegisterView
+
+
 admin.site.site_header = "Hop & Barley Store Management"
 admin.site.site_title = "Hop & Barley Admin Portal"
 admin.site.index_title = "Dashboard & Analytics"
@@ -19,6 +24,9 @@ urlpatterns: List = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/register/', UserRegisterView.as_view(), name='register_api'),
 ]
 
 if settings.DEBUG:
