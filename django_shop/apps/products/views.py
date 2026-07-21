@@ -1,9 +1,17 @@
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.db.models import Q, Sum, Avg, Max, QuerySet
 from django.db.models.functions import Coalesce
 
 from apps.cart.cart import Cart # noqa
+
+from .forms import ReviewForm
 from .models import Product, Category
+from .services import check_user_for_review_eligible
 
 
 class ProductListView(ListView):
@@ -71,18 +79,46 @@ class ProductDetailView(DetailView):
     template_name = "products/product_detail.html"
     context_object_name = "product"
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            login_url = reverse('users:login')
+            current_path = request.path
+            return redirect(f"{login_url}?next={current_path}")
+        
+        self.object = self.get_object()
+        form = ReviewForm(request.POST)
+
+        if not check_user_for_review_eligible(request.user, self.object):
+            messages.error(request, "You cannot leave a review for this product (for example, you haven't purchased it or have already left a review).")
+            return self.render_to_response(self.get_context_data(form=form))
+        
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.product = self.object
+            review.save()
+            return redirect(self.object.get_absolute_url())
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
     def get_queryset(self):
-        return Product.objects.filter(is_active=True).prefetch_related("categories")
+        return Product.objects.filter(is_active=True).prefetch_related("categories", "reviews__user")
 
     def get_context_data(self, **kwargs):
         context = super(ProductDetailView, self).get_context_data(**kwargs)
         product = self.object
-        reviews = product.review_set.all().order_by("-created_at")
+        
+        reviews = product.reviews.all().order_by("-created_at")
         context['reviews'] = reviews
         average_rating = reviews.aggregate(Avg("rating"))["rating__avg"]
         context['average_rating'] = round(average_rating, 2) if average_rating else 'No rating'
         
+        # Fetch current cart quantity for this product
         cart = Cart(self.request)
         context['current_quantity'] = cart.cart.get(str(product.id), {}).get('quantity', 0)
         
+        # Ensure a ReviewForm instance is available in context
+        if 'form' not in context:
+            context['form'] = ReviewForm()
+            
         return context
