@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
@@ -10,6 +11,7 @@ from apps.cart.cart import Cart # noqa
 
 from .forms import ReviewForm
 from .models import Product, Category
+from .services import check_user_for_review_eligible
 
 
 class ProductListView(ListView):
@@ -85,6 +87,10 @@ class ProductDetailView(DetailView):
         
         self.object = self.get_object()
         form = ReviewForm(request.POST)
+
+        if not check_user_for_review_eligible(request.user, self.object):
+            messages.error(request, "You cannot leave a review for this product (for example, you haven't purchased it or have already left a review).")
+            return self.render_to_response(self.get_context_data(form=form))
         
         if form.is_valid():
             review = form.save(commit=False)

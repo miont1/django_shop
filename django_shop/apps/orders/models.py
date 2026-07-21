@@ -18,6 +18,8 @@ class Order(models.Model):
         delivered = ("DELIVERED", "Delivered")
         cancelled = ("CANCELLED", "Cancelled")
 
+    PAID_STATUS_CHOICES = [Status.paid, Status.delivered, Status.shipped]
+
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='orders', blank=True, null=True)   # type: ignore[var-annotated]
     status: models.CharField[str, str] = models.CharField(
         max_length=20,
