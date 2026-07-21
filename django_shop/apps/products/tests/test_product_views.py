@@ -191,6 +191,32 @@ class TestProductViews:
         assert response.status_code == 404
 
 
+    def test_user_cant_review_two_time(self, client, user, product1):
+        client.force_login(user)
+        Review.objects.create(product=product1, user=user, rating=4, comment="Good product")
 
+        url = reverse('products:product_detail', kwargs={'slug': product1.slug})
+        response = client.post(url, data={'comment': 'Very Good product', 'rating': 5}, follow=True)
+        assert response.status_code == 200
+        content = response.content.decode('utf-8')
 
-     
+        assert product1.name in content
+        assert product1.description in content
+        assert f"${product1.price}" in content
+        assert "4.0" in content
+        assert "Good product" in content
+        assert "You cannot leave a review" in content
+
+    def test_user_cant_review_without_paying(self, client, user, product1):
+        client.force_login(user)
+        url = reverse('products:product_detail', kwargs={'slug': product1.slug})
+
+        response = client.post(url, data={'comment': 'Very Good product', 'rating': 5}, follow=True)
+        assert response.status_code == 200
+
+        content = response.content.decode('utf-8')
+        assert product1.name in content
+        assert product1.description in content
+        assert f"${product1.price}" in content
+        assert "No ratings yet" in content
+        assert "You cannot leave a review" in content
