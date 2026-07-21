@@ -4,6 +4,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+admin.site.site_header = "Hop & Barley Store Management"
+admin.site.site_title = "Hop & Barley Admin Portal"
+admin.site.index_title = "Dashboard & Analytics"
+
 urlpatterns: List = [
     path("admin/", admin.site.urls),
     path("cart/", include("apps.cart.urls", namespace="cart")),
