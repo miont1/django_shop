@@ -58,7 +58,7 @@ class Product(models.Model):
         return reverse('products:product_detail', kwargs={'slug': self.slug})
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)  # type: ignore[var-annotated]
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')  # type: ignore[var-annotated]
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # type: ignore[var-annotated]
     rating: models.PositiveIntegerField[int, int] = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     comment: models.TextField[str, str] = models.TextField()

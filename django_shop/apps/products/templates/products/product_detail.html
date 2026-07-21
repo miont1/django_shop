@@ -10,9 +10,9 @@
         <section class="product-details-section">
             <div class="product-image-container">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
                 {% else %}
-                    <img src="{% static 'img/products/citra_hops.jpg' %}" alt="Placeholder" class="product-image">
+                <img src="{% static 'img/products/citra_hops.jpg' %}" alt="Placeholder" class="product-image">
                 {% endif %}
             </div>
             <div class="product-info-column">
@@ -24,25 +24,26 @@
                     </div>
                     <div class="stock-section">
                         {% if product.stock > 0 %}
-                            <span class="stock-tag">
-                                <i class="fa-solid fa-check"></i> Stock: {{ product.stock }} units available
-                            </span>
+                        <span class="stock-tag">
+                            <i class="fa-solid fa-check"></i> Stock: {{ product.stock }} units available
+                        </span>
                         {% else %}
-                            <span class="stock-tag out-of-stock">
-                                <i class="fa-solid fa-xmark"></i> Out of stock
-                            </span>
+                        <span class="stock-tag out-of-stock">
+                            <i class="fa-solid fa-xmark"></i> Out of stock
+                        </span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="product-description">
                     {% if product.description %}
-                        <p>{{ product.description|linebreaksbr }}</p>
+                    <p>{{ product.description|linebreaksbr }}</p>
                     {% else %}
-                        <p>No description available for this product.</p>
+                    <p>No description available for this product.</p>
                     {% endif %}
                 </div>
                 <!-- Container for managing the cart (hooks up with main.js script) -->
-                <div class="cart-controls" data-product-id="{{ product.id }}" data-initial-qty="{{ current_quantity }}" data-stock="{{ product.stock }}">
+                <div class="cart-controls" data-product-id="{{ product.id }}" data-initial-qty="{{ current_quantity }}"
+                    data-stock="{{ product.stock }}">
                     <!-- Add to Cart button (visible by default) -->
                     <button class="button button--primary add-to-cart-button" id="add-to-cart-btn" {% if product.stock == 0 %}disabled style="opacity:0.6;"{% endif %}>
                         <i class="fa-solid fa-cart-shopping"></i>
@@ -72,18 +73,18 @@
                 </div>
                 <div class="accordion-content">
                     <ul>
-                        <li><strong>Categories:</strong> 
+                        <li><strong>Categories:</strong>
                             {% for cat in product.categories.all %}
-                                {{ cat.name }}{% if not forloop.last %}, {% endif %}
+                            {{ cat.name }}{% if not forloop.last %}, {% endif %}
                             {% empty %}
-                                General
+                            General
                             {% endfor %}
                         </li>
-                        <li><strong>Stock Availability:</strong> 
+                        <li><strong>Stock Availability:</strong>
                             {% if product.stock > 0 %}
-                                In stock ({{ product.stock }} units available)
+                            In stock ({{ product.stock }} units available)
                             {% else %}
-                                Out of stock
+                            Out of stock
                             {% endif %}
                         </li>
                         <li><strong>Base Price:</strong> ${{ product.price }}</li>
@@ -95,11 +96,94 @@
 
         <!-- Latest Reviews Section -->
         <section class="reviews-section">
-            <h2 class="reviews-title">Latest reviews (Average Rating: {{ average_rating }})</h2>
+            <div class="reviews-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="reviews-title" style="margin-bottom: 0;">
+                    Latest reviews 
+                    {% if average_rating != 'No rating' %}
+                        <!-- Average rating badge -->
+                        <span class="average-badge" style="font-size: 0.9rem; background: rgba(255,193,7,0.15); color: #ffc107; padding: 4px 12px; border-radius: 20px; margin-left: 8px;">
+                            <i class="fa-solid fa-star"></i> {{ average_rating }} / 5
+                        </span>
+                    {% else %}
+                        <span style="font-size: 0.85rem; color: #a0aec0; font-weight: normal;">(No ratings yet)</span>
+                    {% endif %}
+                </h2>
+            </div>
+
+            <!-- ADD REVIEW FORM CONTAINER (Processed via ProductDetailView.post) -->
+            <div class="add-review-container" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; margin-bottom: 32px;">
+                <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.25rem;">Leave a Review</h3>
+                
+                <!-- Authentication check: display form only for logged-in users -->
+                {% if user.is_authenticated %}
+                    <!-- Review submission form (POST request target is current page URL) -->
+                    <form method="post" action="" class="review-form">
+                        <!-- CSRF Token: required for security in Django POST requests -->
+                        {% csrf_token %}
+
+                        <!-- Non-field error messages (e.g. form-wide validation errors) -->
+                        {% if form.non_field_errors %}
+                            <div class="form-error" style="color: #e53e3e; margin-bottom: 16px; background: rgba(229, 62, 62, 0.1); padding: 10px 14px; border-radius: 6px;">
+                                {% for error in form.non_field_errors %}
+                                    <p style="margin: 0;">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Rating selection field (1 to 5 stars selection) -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">{{ form.rating.label }}</label>
+                            <div class="star-rating-selector" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                {% for radio in form.rating %}
+                                    <!-- Render each radio button option -->
+                                    <label class="star-radio-label" style="cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.05); padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.2s;">
+                                        {{ radio.tag }}
+                                        <span>{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            <!-- Validation errors for the rating field -->
+                            {% if form.rating.errors %}
+                                <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 6px;">
+                                    {{ form.rating.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Text comment input field -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="{{ form.comment.id_for_label }}" style="display: block; margin-bottom: 8px; font-weight: 600;">{{ form.comment.label }}</label>
+                            <!-- Render comment textarea widget -->
+                            {{ form.comment }}
+                            <!-- Validation errors for the comment field -->
+                            {% if form.comment.errors %}
+                                <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 6px;">
+                                    {{ form.comment.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form submission button -->
+                        <button type="submit" class="button button--primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Review
+                        </button>
+                    </form>
+                {% else %}
+                    <!-- Prompt banner encouraging anonymous users to log in -->
+                    <div class="login-prompt" style="text-align: center; padding: 16px; background: rgba(255, 255, 255, 0.02); border-radius: 8px;">
+                        <p style="margin: 0; color: #a0aec0;">
+                            Please <a href="{% url 'users:login' %}?next={{ request.path }}" style="color: #3182ce; text-decoration: underline;">log in</a> to leave a review for this product.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- EXISTING REVIEWS LIST -->
             <div class="reviews-grid">
                 {% for review in reviews %}
-                <!-- Review Card -->
+                <!-- Individual Review Card -->
                 <div class="review-card">
+                    <!-- Loop to render filled vs empty star icons based on rating -->
                     <div class="review-rating">
                         {% for i in "12345"|make_list %}
                             {% if review.rating >= forloop.counter %}
@@ -109,16 +193,19 @@
                             {% endif %}
                         {% endfor %}
                     </div>
+                    <!-- Review text content and rating value -->
                     <div class="review-body">
                         <h4 class="review-heading">Rating: {{ review.rating }}/5</h4>
                         <p class="review-text">{{ review.comment }}</p>
                     </div>
+                    <!-- Review author information -->
                     <div class="review-author">
                         <img src="{% static 'img/avatars/avatar1.svg' %}" alt="User avatar" class="author-avatar">
                         <span class="author-name">{{ review.user.email }}</span>
                     </div>
                 </div>
                 {% empty %}
+                <!-- Empty state when no reviews exist for this product -->
                 <div style="grid-column: 1 / -1; padding: 20px 0;">
                     <p style="color: #a0aec0;">No reviews yet. Be the first to leave a review!</p>
                 </div>

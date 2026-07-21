@@ -24,8 +24,12 @@
             </div>
             {% endif %}
 
-            <form class="auth-form" id="django-login-form" method="post" action="{% url 'users:login' %}">
+            <form class="auth-form" id="django-login-form" method="post" action="{% url 'users:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
                 {% csrf_token %}
+                {% if request.GET.next %}
+                <!-- Preserve redirect destination after login -->
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
 
                 <div class="InputField">
                     <label for="{{ form.username.id_for_label }}">Email</label>
