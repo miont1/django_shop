@@ -85,24 +85,22 @@
             </section>
 
             <!-- Payment Method -->
+
+
             <section class="checkout-section">
-                <h2 class="checkout-section__title">Payment Method</h2>
-                <div class="payment-options">
-                    <label class="radio-option">
-                        <input type="radio" name="payment_method" value="debit" checked>
-                        <span class="radio-custom"></span>
-                        <span class="radio-label">Debit Card</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="payment_method" value="wallet">
-                        <span class="radio-custom"></span>
-                        <span class="radio-label">Digital Wallet</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="payment_method" value="cod">
-                        <span class="radio-custom"></span>
-                        <span class="radio-label">Cash On Delivery</span>
-                    </label>
+                <h2 class="checkout-section__title">Payment Method (Mock)</h2>
+                <div class="payment-options" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                    {% for radio in form.payment_method %}
+                        <label for="{{ radio.id_for_label }}" class="payment-option-card">
+                            {{ radio.tag }}
+                            <span class="radio-label">{{ radio.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                    {% if form.payment_method.errors %}
+                        <div style="color: #a51d24; font-size: 14px; font-weight: 500; margin-top: 4px;">
+                            {{ form.payment_method.errors.0 }}
+                        </div>
+                    {% endif %}
                 </div>
             </section>
 
