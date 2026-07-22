@@ -2007,3 +2007,36 @@ body.user-logged-in .header__user-actions {
     height: 44px;
     padding: 0 32px;
 }
+
+/* Checkout Payment Option Card Styles */
+.payment-option-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+.payment-option-card:hover {
+    border-color: #0284c7;
+    background-color: #f8fafc;
+}
+.payment-option-card:has(input[type="radio"]:checked) {
+    border-color: #0284c7;
+    background-color: #f0f9ff;
+    box-shadow: 0 0 0 1px #0284c7;
+}
+.payment-option-card input[type="radio"] {
+    accent-color: #0284c7;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.payment-option-card .radio-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}

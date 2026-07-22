@@ -21,6 +21,10 @@ class Order(models.Model):
         delivered = ("DELIVERED", "Delivered")
         cancelled = ("CANCELLED", "Cancelled")
 
+    class PaymentMethod(models.TextChoices):
+        CARD = ("CARD", "Credit / Debit Card (Mock)")
+        CASH = ("CASH", "Cash on Delivery")
+
     PAID_STATUS_CHOICES = [Status.paid, Status.delivered, Status.shipped]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='orders', blank=True, null=True)   # type: ignore[var-annotated]
@@ -28,6 +32,12 @@ class Order(models.Model):
         max_length=20,
         choices=Status.choices,
         default=Status.pending,
+    )
+    payment_method: models.CharField[str, str] = models.CharField(
+        max_length=20,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.CARD,
+        verbose_name="Payment Method",
     )
     total_price: models.DecimalField[float, float] = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)], default=Decimal('0.00'))
     first_name: models.CharField[str, str] = models.CharField(max_length=50)

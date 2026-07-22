@@ -9,7 +9,7 @@ from ..services import make_order
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'phone', 'address', 'status', 'total_price', 'created_at']
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'phone', 'address', 'payment_method', 'status', 'total_price', 'created_at']
         read_only_fields = ['id', 'status', 'total_price', 'created_at']
 
     def validate_phone(self, value):
