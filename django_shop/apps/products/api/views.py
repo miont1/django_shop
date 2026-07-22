@@ -1,10 +1,11 @@
-from rest_framework import viewsets, permissions, mixins
+from rest_framework import mixins, permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 from ..models import Product, Review
-from .serializers import ProductSerializer, ReviewSerializer
 from ..services import check_user_for_review_eligible
+from .serializers import ProductSerializer, ReviewSerializer
+
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(is_active=True).prefetch_related('categories').order_by('-created_at','id')

@@ -7,6 +7,7 @@ from apps.products.models import Product  # type: ignore[import-not-found]
 
 from .cart_exeptions import NotEnoughProductInStock
 
+
 class Cart:
 
     def __init__(self, request: HttpRequest):

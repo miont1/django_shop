@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Avg, Sum, Count
+from django.db.models import Avg, Count, Sum
 from django.db.models.functions import Coalesce
 from django.utils.html import format_html
 

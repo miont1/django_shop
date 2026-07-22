@@ -1,8 +1,10 @@
 from django.core.validators import validate_email
 from rest_framework import serializers
-from ..models import Order
+
 from ...cart.cart import Cart
+from ..models import Order
 from ..services import make_order
+
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from apps.products.models import Product # noqa
+from apps.products.models import Product  # noqa
+
 
 class CartItemSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()

@@ -1,8 +1,10 @@
-from django.core.mail import send_mail
 from django.conf import settings
-from apps.orders.models import Order, OrderItem # noqa
-from apps.cart.cart import Cart # noqa
+from django.core.mail import send_mail
 from django.db import transaction
+
+from apps.cart.cart import Cart  # noqa
+from apps.orders.models import Order, OrderItem  # noqa
+
 
 def send_confirmation_email(order: Order) -> None:
     subject = f"Order #{order.id} placed successfully! | Hop & Barley"

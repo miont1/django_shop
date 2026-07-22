@@ -1,10 +1,10 @@
 import pytest
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
 from django.core.exceptions import ValidationError
-
-from apps.products.models import Product, Category, Review # noqa
+from django.db import IntegrityError
 from django.urls import reverse
+
+from apps.products.models import Category, Product, Review  # noqa
 
 User = get_user_model()
 
