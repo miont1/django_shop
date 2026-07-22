@@ -1,11 +1,15 @@
 import json
+
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+
 from apps.products.models import Product
+
 from .cart import Cart
 from .cart_exeptions import NotEnoughProductInStock
+
 
 def cart_detail(request):
     cart = Cart(request)

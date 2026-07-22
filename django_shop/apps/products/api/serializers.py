@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from ..models import Product, Category, Review
+
+from ..models import Category, Product, Review
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

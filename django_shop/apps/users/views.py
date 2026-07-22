@@ -2,12 +2,13 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, UpdateView
 
+from apps.orders.models import Order  # noqa
+
 from .forms import CustomUserRegisterForm, UserProfileForm
-from apps.orders.models import Order # noqa
 
 
 def user_register(request):

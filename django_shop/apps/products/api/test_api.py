@@ -4,8 +4,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from ..models import Product, Review
 from apps.orders.models import Order, OrderItem
+
+from ..models import Product, Review
 
 User = get_user_model()
 

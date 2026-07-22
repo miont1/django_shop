@@ -1,7 +1,8 @@
 from typing import List
 
 from django.urls import path
-from .views import ProductListView, ProductDetailView
+
+from .views import ProductDetailView, ProductListView
 
 app_name = "products"
 

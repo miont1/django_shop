@@ -4,8 +4,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-from apps.products.models import Product  # type: ignore[import-not-found]
 from apps.orders.models import Order, OrderItem  # type: ignore[import-not-found]
+from apps.products.models import Product  # type: ignore[import-not-found]
 
 User = get_user_model()
 

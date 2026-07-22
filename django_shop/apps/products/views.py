@@ -1,16 +1,16 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db.models import Avg, Max, Q, QuerySet, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import ListView, DetailView
-from django.db.models import Q, Sum, Avg, Max, QuerySet
-from django.db.models.functions import Coalesce
+from django.views.generic import DetailView, ListView
 
-from apps.cart.cart import Cart # noqa
+from apps.cart.cart import Cart  # noqa
 
 from .forms import ReviewForm
-from .models import Product, Category
+from .models import Category, Product
 from .services import check_user_for_review_eligible
 
 

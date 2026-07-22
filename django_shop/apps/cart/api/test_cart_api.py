@@ -4,8 +4,10 @@ from rest_framework import status
 from rest_framework.templatetags.rest_framework import items
 from rest_framework.test import APIClient
 
+from apps.products.models import Product  # noqa
+
 from ..cart import Cart
-from apps.products.models import Product # noqa
+
 
 @pytest.fixture()
 def client():

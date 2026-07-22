@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 
 class UserManager(BaseUserManager['User']):
     def create_user(self, email: str, password: str | None = None, **extra_fields) -> 'User':
@@ -26,15 +28,15 @@ class UserManager(BaseUserManager['User']):
 
 class User(AbstractUser):
     email: models.EmailField[str, str] = models.EmailField(unique=True, verbose_name="Email")
-    username: models.CharField[str, str] = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name="Username")
-    middle_name: models.CharField[str, str] = models.CharField(max_length=100, blank=True, null=True, verbose_name="Middle Name")
-    phone: models.CharField[str, str] = models.CharField(max_length=15, blank=True, null=True, verbose_name='Telephone number')
-    address: models.TextField[str, str] = models.TextField(blank=True, null=True, verbose_name='Address')
-    city: models.CharField[str, str] = models.CharField(max_length=30, blank=True, null=True, verbose_name='City')
+    username: models.CharField[str | None, str | None] = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name="Username")  # type: ignore[assignment]
+    middle_name: models.CharField[str | None, str | None] = models.CharField(max_length=100, blank=True, null=True, verbose_name="Middle Name")
+    phone: models.CharField[str | None, str | None] = models.CharField(max_length=15, blank=True, null=True, verbose_name='Telephone number')
+    address: models.TextField[str | None, str | None] = models.TextField(blank=True, null=True, verbose_name='Address')
+    city: models.CharField[str | None, str | None] = models.CharField(max_length=30, blank=True, null=True, verbose_name='City')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-    objects = UserManager()  # type: ignore[assignment]
+    objects = UserManager()  # type: ignore[assignment,misc]
 
     def __str__(self) -> str:
         return self.email

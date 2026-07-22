@@ -1,9 +1,12 @@
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404
-from apps.cart.cart import Cart # noqa
-from apps.orders.models import Order, OrderItem # noqa
+from django.shortcuts import get_object_or_404, redirect, render
+
+from apps.cart.cart import Cart  # noqa
+from apps.orders.models import Order, OrderItem  # noqa
+
 from .forms import OrderForm
+from .services import make_order
 
 
 def order_create(request):
@@ -15,23 +18,17 @@ def order_create(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                order = form.save(commit=False)
-                if request.user.is_authenticated:
-                    order.user = request.user
-                order.total_price = cart.get_total_price()
-                order.save()
-                for item in cart:
-                    if not item['has_enough_stock']:
-                        raise ValueError('Not enough stock')
-                    OrderItem.objects.create(order=order, product=item['product'], price=item['price'], quantity=item['quantity'])
-            cart.clear()
-            # Store in session so they can view the success page
-            placed_orders = request.session.get('placed_orders', [])
-            placed_orders.append(order.id)
-            request.session['placed_orders'] = placed_orders
-            
-            return redirect('orders:success', order_id=order.id)
+            try:
+                order = make_order(user=request.user, order_data=form.cleaned_data, cart=cart)
+            except ValueError as e:
+                form.add_error(None, str(e))
+            else:
+                # Store in session so they can view the success page
+                placed_orders = request.session.get('placed_orders', [])
+                placed_orders.append(order.id)
+                request.session['placed_orders'] = placed_orders
+
+                return redirect('orders:success', order_id=order.id)
     else:
         form = OrderForm()
 

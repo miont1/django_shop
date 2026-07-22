@@ -1,13 +1,15 @@
-from decimal import Decimal
 import json
+from decimal import Decimal
 
 import pytest
 from django.http import HttpRequest
 from django.urls import reverse
-from .cart import Cart
-from apps.products.models import Product # noqa
 
+from apps.products.models import Product  # noqa
+
+from .cart import Cart
 from .cart_exeptions import NotEnoughProductInStock
+
 
 @pytest.fixture()
 def request_with_session(client) -> HttpRequest:

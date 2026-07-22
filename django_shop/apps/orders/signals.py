@@ -1,9 +1,10 @@
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-from .services import send_confirmation_email
 from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from .models import Order
+from .services import send_confirmation_email
+
 
 @receiver(post_save, sender=Order)
 def send_order_confirmation_email(sender, instance, created, **kwargs) -> None:

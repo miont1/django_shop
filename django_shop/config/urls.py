@@ -1,13 +1,17 @@
 from typing import List
-from django.contrib import admin
-from django.urls import path, include
+
 from django.conf import settings
 from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from django.contrib import admin
+from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.users.api.views import UserRegisterView
-
 
 admin.site.site_header = "Hop & Barley Store Management"
 admin.site.site_title = "Hop & Barley Admin Portal"

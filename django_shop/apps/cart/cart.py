@@ -7,6 +7,7 @@ from apps.products.models import Product  # type: ignore[import-not-found]
 
 from .cart_exeptions import NotEnoughProductInStock
 
+
 class Cart:
 
     def __init__(self, request: HttpRequest):
@@ -48,12 +49,9 @@ class Cart:
     def clear(self):
         self.session.pop(settings.CART_SESSION_ID, None)
         self.cart = {}
-        self.save()
 
     def get_total_price(self):
-        product_ids = self.cart.keys()
-        existing_ids = set(str(id_) for id_ in Product.objects.filter(id__in=product_ids).values_list('id', flat=True))
-        return sum(Decimal(item['price']) * item['quantity'] for id_, item in self.cart.items() if id_ in existing_ids)
+        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
 
     def __iter__(self):
         product_ids = self.cart.keys()
@@ -62,6 +60,13 @@ class Cart:
             return
 
         product_map = {str(product.id): product for product in products}
+
+        # Deleting ids that not in DB
+        bug_ids = [p_id for p_id in list(self.cart.keys()) if p_id not in product_map]
+        if bug_ids:
+            for p_id in bug_ids:
+                del self.cart[p_id]
+            self.save()
 
         for product_id, item in self.cart.items():
             if product_id in product_map:
@@ -73,9 +78,7 @@ class Cart:
                 yield item_copy
 
     def __len__(self):
-        product_ids = self.cart.keys()
-        existing_ids = set(str(id_) for id_ in Product.objects.filter(id__in=product_ids).values_list('id', flat=True))
-        return sum(item['quantity'] for id_, item in self.cart.items() if id_ in existing_ids)
+        return sum(item['quantity'] for item in self.cart.values())
 
     def get_all_items(self):
         items = []
