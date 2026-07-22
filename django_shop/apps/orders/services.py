@@ -29,7 +29,7 @@ def send_confirmation_email(order: Order) -> None:
     )
 
 def make_order(user, order_data: dict, cart: Cart) -> Order:
-    if not cart:
+    if len(cart) == 0:
         raise ValueError('Cart is empty')
 
     for item in cart:
