@@ -82,6 +82,27 @@ class TestOrderAPI:
         assert response.data['total_price'] == '50.00'
         assert Order.objects.filter(user=user, email='orderapi@example.com').exists()
 
+    def test_create_order_anonymous_guest_checkout(self, client, product):
+        cart_url = reverse('cart_api-list')
+        client.post(cart_url, {'product_id': product.id, 'quantity': 1})
+
+        url = reverse('order_api-list')
+        payload = {
+            'first_name': 'Guest',
+            'middle_name': 'User',
+            'last_name': 'Buyer',
+            'email': 'guest@example.com',
+            'phone': '+380991112233',
+            'address': 'Lviv, Main St 10'
+        }
+        response = client.post(url, payload)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['total_price'] == '25.00'
+        
+        order = Order.objects.get(email='guest@example.com')
+        assert order.user is None
+        assert order.first_name == 'Guest'
+
     def test_list_user_orders(self, client, user):
         Order.objects.create(
             user=user,
