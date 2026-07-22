@@ -1,6 +1,8 @@
 from django.core.mail import send_mail
 from django.conf import settings
-from apps.orders.models import Order # noqa
+from apps.orders.models import Order, OrderItem # noqa
+from apps.cart.cart import Cart # noqa
+from django.db import transaction
 
 def send_confirmation_email(order: Order) -> None:
     subject = f"Order #{order.id} placed successfully! | Hop & Barley"
@@ -25,3 +27,29 @@ def send_confirmation_email(order: Order) -> None:
         recipient_list=[order.email, settings.ADMIN_EMAIL],
         fail_silently=False,
     )
+
+def make_order(user, order_data: dict, cart: Cart) -> Order:
+    if not cart:
+        raise ValueError('Cart is empty')
+
+    for item in cart:
+        if not item['has_enough_stock']:
+            raise ValueError(f'Not enough stock for {item["product"].name}')
+
+    with transaction.atomic():
+        order = Order(**order_data)
+        if user and user.is_authenticated:
+            order.user = user
+        order.total_price = cart.get_total_price()
+        order.save()
+
+        for item in cart:
+            OrderItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['price'],
+            )
+        cart.clear()
+
+    return order
