@@ -4,7 +4,8 @@
 [![Django Version](https://img.shields.io/badge/django-6.0.6-green.svg)](https://www.djangoproject.com/)
 [![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checker](https://img.shields.io/badge/type%20checker-mypy-blue.svg)](http://mypy-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-82%20passed-success.svg)](https://docs.pytest.org/)
+[![Tests](https://img.shields.io/badge/tests-83%20passed-success.svg)](https://docs.pytest.org/)
+[![Package Manager](https://img.shields.io/badge/package%20manager-uv-blueviolet.svg)](https://docs.astral.sh/uv/)
 
 **Hop & Barley** is a feature-rich Django-based e-commerce platform dedicated to homebrewing supplies (ingredients, hops, malts, yeast, and brewing kits). The project combines a modern HTML5/CSS3 Web Storefront, an Analytics-rich Custom Django Admin Dashboard, and a RESTful API powered by Django REST Framework & SimpleJWT with Swagger documentation.
 
@@ -41,9 +42,10 @@
 | **API Security** | `djangorestframework-simplejwt` |
 | **API Documentation** | `drf-spectacular` (OpenAPI 3.0 / Swagger UI) |
 | **Database** | PostgreSQL 16 / SQLite (for local development) |
-| **Testing** | Pytest + `pytest-django` (82 unit tests) |
+| **Package Manager** | `uv` / `pip` (`pyproject.toml` & `uv.lock`) |
+| **Testing** | Pytest + `pytest-django` (83 unit tests) |
 | **Linters & Typing** | `ruff` (formatting & linting) + `mypy` (static type checking) |
-| **Containerization** | Docker & Docker Compose |
+| **Containerization** | Docker & Docker Compose (powered by `uv`) |
 | **CI/CD** | GitHub Actions (`.github/workflows/ci.yml`) |
 
 ---
@@ -70,8 +72,11 @@ django_shop/
 │   ├── pyproject.toml          # Ruff, Mypy, & Pytest configuration
 │   └── manage.py
 ├── .env_example                # Template for environment variables
-├── Dockerfile                  # Container build instructions
+├── .dockerignore               # Docker ignore rules (prevents host .venv copying)
+├── Dockerfile                  # Container build instructions (using Astral uv)
 ├── docker-compose.yml          # Multi-container setup (Django + PostgreSQL)
+├── pyproject.toml              # Unified uv, dependencies, Ruff, Mypy & Pytest configuration
+├── uv.lock                     # Locked dependencies for reproducible builds
 ├── requirements.txt            # Python dependencies
 └── README.md                   # Project documentation
 ```
@@ -116,7 +121,29 @@ django_shop/
 
 ---
 
-### Option B: Running Locally
+### Option B: Running Locally with uv (Recommended)
+
+1. **Install dependencies and sync environment:**
+   ```bash
+   uv sync
+   ```
+
+2. **Configure environment variables:**
+   ```bash
+   cp .env_example .env
+   ```
+
+3. **Run migrations & start the development server:**
+   ```bash
+   cd django_shop
+   uv run python manage.py migrate
+   uv run python manage.py populate_db   # (Optional) seed categories and sample products
+   uv run python manage.py runserver
+   ```
+
+---
+
+### Option C: Running Locally with pip
 
 1. **Create and activate a virtual environment:**
    ```bash
@@ -132,13 +159,9 @@ django_shop/
    pip install -r requirements.txt
    ```
 
-3. **Configure environment variables:**
+3. **Configure environment variables & run:**
    ```bash
    cp .env_example .env
-   ```
-
-4. **Run migrations & start the development server:**
-   ```bash
    cd django_shop
    python manage.py migrate
    python manage.py runserver
@@ -204,20 +227,21 @@ curl -X GET http://127.0.0.1:8000/api/v1/orders/ \
 ## 🧪 Testing & Code Quality
 
 ### Running Unit Tests
-All 82 unit tests cover models, views, services, forms, and API endpoints:
+All 83 unit tests cover models, views, services, forms, and API endpoints:
 ```bash
-python -m pytest
+uv run pytest
+# or: python -m pytest
 ```
 
 ### Static Analysis & Linting
 Run Ruff for linting and code formatting:
 ```bash
-ruff check .
+uv run ruff check .
 ```
 
 Run Mypy for static type checking:
 ```bash
-mypy .
+uv run mypy .
 ```
 
 ## 📄 License
