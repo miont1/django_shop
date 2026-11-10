@@ -1,10 +1,9 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from rest_framework_nested import routers
-
 from apps.cart.api.views import CartViewSet
 from apps.orders.api.views import OrderViewSet
 from apps.products.api.views import ProductViewSet, ReviewViewSet
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 
 api_router = DefaultRouter()
 

@@ -1,14 +1,13 @@
 from decimal import Decimal
 
 import pytest
+from apps.cart.cart import Cart
+from apps.orders.models import Order, OrderItem
+from apps.products.models import Product
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.urls import reverse
-
-from apps.cart.cart import Cart
-from apps.orders.models import Order, OrderItem
-from apps.products.models import Product
 
 User = get_user_model()
 

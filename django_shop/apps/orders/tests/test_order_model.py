@@ -1,11 +1,10 @@
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-
 from apps.orders.models import Order, OrderItem  # type: ignore[import-not-found]
 from apps.products.models import Product  # type: ignore[import-not-found]
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
