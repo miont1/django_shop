@@ -1,0 +1,75 @@
+[project]
+name = "django-shop"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "asgiref==3.11.1",
+    "ast-serialize==0.6.0",
+    "attrs==26.1.0",
+    "colorama==0.4.6",
+    "django==6.0.6",
+    "django-stubs==6.0.6",
+    "django-stubs-ext==6.0.6",
+    "djangorestframework==3.17.1",
+    "djangorestframework-simplejwt==5.5.1",
+    "djangorestframework-stubs==3.17.0",
+    "drf-nested-routers==0.95.0",
+    "drf-spectacular==0.30.0",
+    "gunicorn>=27.0.0",
+    "inflection==0.5.1",
+    "iniconfig==2.3.0",
+    "jsonschema==4.26.0",
+    "jsonschema-specifications==2025.9.1",
+    "librt==0.12.0",
+    "mypy==2.1.0",
+    "mypy-extensions==1.1.0",
+    "packaging==26.2",
+    "pathspec==1.1.1",
+    "pillow==12.3.0",
+    "pluggy==1.6.0",
+    "psycopg==3.3.4",
+    "psycopg-binary==3.3.4",
+    "pygments==2.20.0",
+    "pyjwt==2.13.0",
+    "pytest==9.1.1",
+    "pytest-django==4.12.0",
+    "python-dotenv==1.2.2",
+    "pyyaml==6.0.3",
+    "referencing==0.37.0",
+    "rpds-py==2026.6.3",
+    "ruff==0.15.20",
+    "sqlparse==0.5.5",
+    "types-pyyaml==6.0.12.20260518",
+    "typing-extensions==4.16.0",
+    "tzdata==2026.2",
+    "uritemplate==4.2.0",
+    "whitenoise==6.12.0",
+]
+
+[tool.ruff]
+exclude = [
+    "**/migrations/*.py",
+    "**/settings.py",
+    ".venv",
+]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["F401"]
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+strict_optional = true
+ignore_missing_imports = true
+allow_untyped_globals = true
+exclude = ['settings\.py']
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+pythonpath = ["django_shop", "."]
+

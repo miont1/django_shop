@@ -1,9 +1,19 @@
 # Use the official Python slim image for a lightweight container
 FROM python:3.14-slim
 
-# Set environment variables to prevent Python from writing pyc files and to buffer stdout/stderr
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Install uv from the official Astral image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set environment variables:
+# - PYTHONDONTWRITEBYTECODE & PYTHONUNBUFFERED: Standard Python container settings
+# - UV_COMPILE_BYTECODE: Compile Python source files to bytecode after installation
+# - UV_LINK_MODE: Copy files instead of hardlinking (ensures compatibility across Docker filesystems)
+# - PATH: Add virtual environment binaries to PATH so python/manage.py/gunicorn run seamlessly
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PATH="/app/.venv/bin:$PATH"
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -14,11 +24,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only requirements.txt first to leverage Docker's build cache
-COPY requirements.txt /app/
+# Copy dependency definition files first to leverage Docker layer caching
+COPY pyproject.toml uv.lock ./
 
-# Install the Python dependencies, gunicorn WSGI server, and whitenoise for static files
-RUN pip install --no-cache-dir -r requirements.txt gunicorn whitenoise
+# Install project dependencies into /app/.venv using the lockfile
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
 
 # Copy the rest of the application code
 COPY . /app/
