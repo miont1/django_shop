@@ -62,6 +62,4 @@ Desktop.ini
 
 /django_shop/static/img/avatars/*.svg
 /django_shop/frontend-example/
-/django_shop/static/img/products/*.jpg
-/django_shop/media/products/*.jpg
 /django_shop/staticfiles/
