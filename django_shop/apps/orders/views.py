@@ -30,7 +30,22 @@ def order_create(request):
 
                 return redirect('orders:success', order_id=order.id)
     else:
-        form = OrderForm()
+        initial = {}
+        if request.user.is_authenticated:
+            user = request.user
+            address_val = user.address or ""
+            if user.city and user.city.lower() not in address_val.lower():
+                address_val = f"{user.city}, {address_val}".strip(", ")
+
+            initial = {
+                'first_name': user.first_name or "",
+                'middle_name': user.middle_name or "",
+                'last_name': user.last_name or "",
+                'email': user.email or "",
+                'phone': user.phone or "",
+                'address': address_val,
+            }
+        form = OrderForm(initial=initial)
 
     return render(request, 'orders/order_create.html', {'cart': cart, 'form': form})
 

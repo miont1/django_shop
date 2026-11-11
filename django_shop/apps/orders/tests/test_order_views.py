@@ -37,6 +37,30 @@ class TestOrderViews:
         assert response.status_code == 200
         assert 'orders/order_create.html' in [t.name for t in response.templates]
 
+    def test_order_create_view_get_authenticated_prefilled(self, client, user, product):
+        user.first_name = "Taras"
+        user.last_name = "Shevchenko"
+        user.middle_name = "Hryhorovych"
+        user.phone = "+380501234567"
+        user.city = "Kaniv"
+        user.address = "Chernecha Hora 1"
+        user.save()
+
+        client.force_login(user)
+        cart_add_url = reverse('cart:cart_add', args=[product.id])
+        client.post(cart_add_url, {'quantity': 1})
+
+        url = reverse('orders:order_create')
+        response = client.get(url)
+        assert response.status_code == 200
+        form = response.context['form']
+        assert form.initial['first_name'] == "Taras"
+        assert form.initial['last_name'] == "Shevchenko"
+        assert form.initial['middle_name'] == "Hryhorovych"
+        assert form.initial['email'] == user.email
+        assert form.initial['phone'] == "+380501234567"
+        assert form.initial['address'] == "Kaniv, Chernecha Hora 1"
+
     def test_order_create_view_post(self, client, user, product):
         # Log in the user
         client.force_login(user)
