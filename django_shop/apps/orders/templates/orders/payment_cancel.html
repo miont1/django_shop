@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment Cancelled | Hop & Barley{% endblock %}
+
+{% block content %}
+<main class="checkout-page-wrapper" style="padding: 64px 0;">
+    <div class="checkout-container" style="max-width: 600px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; gap: 32px;">
+        <div>
+            <div style="font-size: 80px; color: #b45309; margin-bottom: 16px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h1 class="checkout-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Payment Was Cancelled</h1>
+            <p style="font-size: 16px; color: var(--grey-text);">
+                Payment for order <strong>#{{ order.id }}</strong> was not completed. Your order is saved and you can try paying again at any time.
+            </p>
+        </div>
+
+        <section class="checkout-section" style="text-align: left; gap: 12px;">
+            <h2 class="checkout-section__title" style="font-size: 20px; border-bottom: 1px solid var(--border-default); padding-bottom: 12px; margin-bottom: 8px;">
+                Order Summary
+            </h2>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 15px;">
+                <p><strong>Order Number:</strong> #{{ order.id }}</p>
+                <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+                <p><strong>Total Amount:</strong> ${{ order.total_price }}</p>
+            </div>
+        </section>
+
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <form method="post" action="{% url 'orders:payment_retry' order.id %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="button button--primary" style="padding: 12px 32px; font-weight: 600; cursor: pointer;">
+                    Try Paying Again
+                </button>
+            </form>
+            <form method="post" action="{% url 'orders:order_cancel' order.id %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="button button--secondary" style="padding: 12px 24px; font-weight: 600; cursor: pointer; color: #a51d24; border-color: #a51d24;">
+                    Cancel Order
+                </button>
+            </form>
+            <a href="{% url 'orders:success' order.id %}" class="button button--secondary" style="text-decoration: none; display: inline-block; padding: 12px 24px; font-weight: 600;">
+                Order Details
+            </a>
+            <a href="{% url 'products:product_list' %}" class="button button--secondary" style="text-decoration: none; display: inline-block; padding: 12px 24px; font-weight: 600;">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

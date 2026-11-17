@@ -1,19 +1,37 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Order Success | Hop & Barley{% endblock %}
+{% block title %}Order #{{ order.id }} | Hop & Barley{% endblock %}
 
 {% block content %}
 <main class="checkout-page-wrapper" style="padding: 64px 0;">
     <div class="checkout-container" style="max-width: 600px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; gap: 32px;">
         <div>
-            <div style="font-size: 80px; color: #02542d; margin-bottom: 16px;">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <h1 class="checkout-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Order Placed Successfully!</h1>
-            <p style="font-size: 16px; color: var(--grey-text);">
-                Thank you for your order. Your order number is <strong>#{{ order.id }}</strong>.
-            </p>
+            {% if order.status == "CANCELLED" %}
+                <div style="font-size: 80px; color: #a51d24; margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h1 class="checkout-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Order Cancelled</h1>
+                <p style="font-size: 16px; color: var(--grey-text);">
+                    Order <strong>#{{ order.id }}</strong> has been cancelled.
+                </p>
+            {% elif order.payment_method == "CARD" and order.status == "PENDING" %}
+                <div style="font-size: 80px; color: #b45309; margin-bottom: 16px;">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <h1 class="checkout-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Awaiting Payment</h1>
+                <p style="font-size: 16px; color: var(--grey-text);">
+                    Your order <strong>#{{ order.id }}</strong> is saved and awaiting online card payment.
+                </p>
+            {% else %}
+                <div style="font-size: 80px; color: #02542d; margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h1 class="checkout-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Order Placed Successfully!</h1>
+                <p style="font-size: 16px; color: var(--grey-text);">
+                    Thank you for your order. Your order number is <strong>#{{ order.id }}</strong>.
+                </p>
+            {% endif %}
         </div>
 
         <!-- Delivery Details -->
@@ -26,6 +44,8 @@
                 <p><strong>Phone Number:</strong> {{ order.phone }}</p>
                 <p><strong>Email Address:</strong> {{ order.email }}</p>
                 <p><strong>Shipping Address:</strong> {{ order.address }}</p>
+                <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                <p><strong>Order Status:</strong> {{ order.get_status_display }}</p>
             </div>
         </section>
 
@@ -42,14 +62,30 @@
                 </div>
                 {% endfor %}
                 <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-default); padding-top: 16px; margin-top: 8px; font-size: 18px; font-weight: 700;">
-                    <span>Total Paid</span>
+                    <span>{% if order.status in order.PAID_STATUS_CHOICES %}Total Paid{% else %}Total Amount{% endif %}</span>
                     <span>${{ order.total_price }}</span>
                 </div>
             </div>
         </section>
 
-        <div>
-            <a href="{% url 'products:product_list' %}" class="button button--primary" style="text-decoration: none; display: inline-block; padding: 12px 32px; font-weight: 600;">
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            {% if order.payment_method == "CARD" and order.status == "PENDING" %}
+                <form method="post" action="{% url 'orders:payment_retry' order.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="button button--primary" style="padding: 12px 32px; font-weight: 600; cursor: pointer;">
+                        Pay Now
+                    </button>
+                </form>
+            {% endif %}
+            {% if order.status == "PENDING" %}
+                <form method="post" action="{% url 'orders:order_cancel' order.id %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="button button--secondary" style="padding: 12px 24px; font-weight: 600; cursor: pointer; color: #a51d24; border-color: #a51d24;">
+                        Cancel Order
+                    </button>
+                </form>
+            {% endif %}
+            <a href="{% url 'products:product_list' %}" class="button {% if order.payment_method == 'CARD' and order.status == 'PENDING' %}button--secondary{% else %}button--primary{% endif %}" style="text-decoration: none; display: inline-block; padding: 12px 32px; font-weight: 600;">
                 Continue Shopping
             </a>
         </div>

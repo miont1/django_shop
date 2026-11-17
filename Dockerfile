@@ -8,12 +8,14 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # - PYTHONDONTWRITEBYTECODE & PYTHONUNBUFFERED: Standard Python container settings
 # - UV_COMPILE_BYTECODE: Compile Python source files to bytecode after installation
 # - UV_LINK_MODE: Copy files instead of hardlinking (ensures compatibility across Docker filesystems)
+# - UV_PROJECT_ENVIRONMENT: Store container venv outside /app so bind mounts never shadow it
 # - PATH: Add virtual environment binaries to PATH so python/manage.py/gunicorn run seamlessly
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    PATH="/app/.venv/bin:$PATH"
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -27,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy dependency definition files first to leverage Docker layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install project dependencies into /app/.venv using the lockfile
+# Install project dependencies into /opt/venv using the lockfile
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project --no-dev
 
@@ -44,4 +46,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Run the Django application, applying database migrations first
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --worker-class gthread --workers 2 --threads 4"]
