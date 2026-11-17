@@ -22,7 +22,7 @@ class Order(models.Model):
         cancelled = ("CANCELLED", "Cancelled")
 
     class PaymentMethod(models.TextChoices):
-        CARD = ("CARD", "Credit / Debit Card (Mock)")
+        CARD = ("CARD", "Credit / Debit Card (Stripe)")
         CASH = ("CASH", "Cash on Delivery")
 
     PAID_STATUS_CHOICES = [Status.paid, Status.delivered, Status.shipped]
@@ -38,6 +38,12 @@ class Order(models.Model):
         choices=PaymentMethod.choices,
         default=PaymentMethod.CARD,
         verbose_name="Payment Method",
+    )
+    stripe_session_id: models.CharField[str | None, str | None] = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        db_index=True,
     )
     total_price: models.DecimalField[float, float] = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.0)], default=Decimal('0.00'))
     first_name: models.CharField[str, str] = models.CharField(max_length=50)

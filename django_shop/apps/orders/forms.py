@@ -9,7 +9,7 @@ class OrderForm(forms.ModelForm):
         widget=forms.RadioSelect(attrs={"class": "PaymentMethodRadio"}),
         initial=Order.PaymentMethod.CARD,
         required=False,
-        label="Payment Method (Mock)",
+        label="Payment Method",
     )
 
     class Meta:

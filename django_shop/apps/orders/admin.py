@@ -30,9 +30,9 @@ class OrderAdmin(admin.ModelAdmin):
         'items_count',
         'created_at',
     ]
-    list_filter = ['status', 'created_at']
-    search_fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'address']
-    readonly_fields = ['total_price', 'created_at', 'updated_at']
+    list_filter = ['status', 'payment_method', 'created_at']
+    search_fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'stripe_session_id']
+    readonly_fields = ['total_price', 'stripe_session_id', 'created_at', 'updated_at']
     list_editable = ['status']
     inlines = [OrderItemInline]
     actions = ['mark_as_paid', 'mark_as_shipped', 'mark_as_delivered', 'mark_as_cancelled']
